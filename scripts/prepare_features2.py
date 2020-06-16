@@ -227,10 +227,12 @@ if __name__ == "__main__":
         print("Features for duration model training found, skipping feature extraction.")
 
     # Save features for acoustic model
-    if not skip_acoustic_feature_extraction:
+    if True:#not skip_acoustic_feature_extraction:
         print("Acoustic linguistic feature dim", X_acoustic[0].shape)
         print("Acoustic feature dim", Y_acoustic[0].shape)
         for idx, (x, y) in tqdm(enumerate(zip(X_acoustic, Y_acoustic))):
+            if idx <= 2500:
+                continue
             name = splitext(basename(X_acoustic.collected_files[idx][0]))[0]
             xpath = join(X_acoustic_root, name + ".bin")
             ypath = join(Y_acoustic_root, name + ".bin")
