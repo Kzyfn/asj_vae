@@ -203,7 +203,7 @@ from tqdm import tnrange, tqdm
 from torch import optim
 import torch.nn.functional as F
 
-from .models import VQVAE
+from models import VQVAE
 
 
 

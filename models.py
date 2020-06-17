@@ -164,3 +164,30 @@ class VQVAE(nn.Module):
         z = self.quantize_z(z_not_quantized)
         
         return self.decode(z, linguistic_features, mora_index), z, z_not_quantized[0]
+
+class BinaryFileSource(FileDataSource):
+    def __init__(self, data_root, dim, train):
+        self.data_root = data_root
+        self.dim = dim
+        self.train = train
+    def collect_files(self):
+        files = sorted(glob(join(self.data_root, "*.bin")))
+        #files = files[:len(files)-5] # last 5 is real testset
+        train_files = []
+        test_files = []
+        #train_files, test_files = train_test_split(files, test_size=test_size, random_state=random_state)
+
+        for i, path in enumerate(files):
+            if (i - 1) % 20 == 0:#test
+                pass
+            elif i % 20 == 0:#valid
+                test_files.append(path)
+            else:
+                train_files.append(path)
+
+        if self.train:
+            return train_files
+        else:
+            return test_files
+    def collect_features(self, path):
+        return np.fromfile(path, dtype=np.float32).reshape(-1, self.dim)
