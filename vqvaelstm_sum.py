@@ -215,7 +215,7 @@ for i, mora_i in enumerate(mora_index_lists_for_model):
 
 
 
-model = VAE().to(device)
+model = VQVAE().to(device)
 
 if args.model_path != '':
     model.load_state_dict(torch.load(args.model_path))
