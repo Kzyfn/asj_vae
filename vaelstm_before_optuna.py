@@ -296,7 +296,7 @@ def train(epoch):
 
         optimizer.zero_grad()
         recon_batch, mu, logvar = model(tmp[0], tmp[1], data[2])
-        loss = loss_function(recon_batch, tmp[1], mu, logvar)
+        loss = loss_function(recon_batch.view(-1, 199)[:, lf0_start_idx:lf0_start_idx+3], tmp[1].view(-1, 199)[:, lf0_start_idx:lf0_start_idx+3], mu, logvar)
         loss.backward()
         train_loss += loss.item()
         optimizer.step()
@@ -328,7 +328,7 @@ def test(epoch):
             
 
             recon_batch, mu, logvar = model(tmp[0], tmp[1], data[2])
-            test_loss += loss_function(recon_batch, tmp[1], mu, logvar).item()
+            test_loss += loss_function(recon_batch.view(-1, 199)[:, lf0_start_idx:lf0_start_idx+3], tmp[1].view(-1, 199)[:, lf0_start_idx:lf0_start_idx+3], mu, logvar).item()
             f0_loss += calc_lf0_rmse(recon_batch.cpu().numpy().reshape(-1, 199), tmp[1].cpu().numpy().reshape(-1, 199), lf0_start_idx, vuv_start_idx)
 
             del tmp
@@ -382,7 +382,7 @@ for epoch in range(1, num_epochs + 1):
         torch.save(model.state_dict(), args.output_dir + '/model_'+str(epoch+pre_trained_epoch)+'.pth')
     np.save(args.output_dir +'/loss_list.npy', np.array(loss_list))
     np.save(args.output_dir +'/test_loss_list.npy', np.array(test_loss_list))
-    np.save(args.output_dir +'/test_loss_list.npy', np.array(f0_loss_list))
+    np.save(args.output_dir +'/test_f0loss_list.npy', np.array(f0_loss_list))
 # save the training model
 np.save(args.output_dir +'/loss_list.npy', np.array(loss_list))
 np.save(args.output_dir +'/test_loss_list.npy', np.array(test_loss_list))
