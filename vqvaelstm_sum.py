@@ -319,12 +319,7 @@ def test(epoch):
 
 loss_list = []
 
-if os.path.isfile(args.output_dir +'/loss_list.npy'):
-    loss_list = np.load(args.output_dir +'/loss_list.npy')
-
 test_loss_list = []
-if os.path.isfile(args.output_dir +'/test_loss_list.npy'):
-    loss_list = np.load(args.output_dir +'/test_loss_list.npy')
 
 num_epochs = args.num_epoch
 test_f0_losses = []
@@ -360,8 +355,3 @@ for epoch in range(1, num_epochs + 1):
     np.save(args.output_dir +'/test_loss_list.npy', np.array(test_loss_list))
     np.save(args.output_dir +'/test_f0loss_list.npy', np.array(test_f0_losses))
 
-
-# save the training model
-np.save(args.output_dir +'/loss_list.npy', np.array(loss_list))
-np.save(args.output_dir +'/test_loss_list.npy', np.array(test_loss_list))
-torch.save(model.state_dict(), args.output_dir +'/model.pth')

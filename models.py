@@ -108,12 +108,12 @@ class VQVAE(nn.Module):
         self.z_dim = z_dim
 
         self.fc11 = nn.Linear(acoustic_linguisic_dim+acoustic_dim, acoustic_linguisic_dim+acoustic_dim)
-
         self.lstm1 = nn.LSTM(acoustic_linguisic_dim+acoustic_dim, 400, num_layers, bidirectional=bidirectional, dropout=dropout)#入力サイズはここできまる
         self.fc2 = nn.Linear(self.num_direction*400, z_dim)
-        self.fc12 = nn.Linear(acoustic_linguisic_dim+z_dim, acoustic_linguisic_dim+z_dim)
         ##ここまでエンコーダ
-        
+
+
+        self.fc12 = nn.Linear(acoustic_linguisic_dim+z_dim, acoustic_linguisic_dim+z_dim)
         self.lstm2 = nn.LSTM(acoustic_linguisic_dim+z_dim, 400, num_layers, bidirectional=bidirectional, dropout=dropout)
         self.fc3 = nn.Linear(self.num_direction*400, acoustic_dim)
 
