@@ -387,8 +387,7 @@ def test(epoch):
             
 
             recon_batch, mu, logvar = model(tmp[0], tmp[1], data[2])
-            test_loss += loss_function(recon_batch.view(-1, 199)[:, lf0_start_idx:lf0_start_idx+3], tmp[1].view(-1, 199)[:, lf0_start_idx:lf0_start_idx+3], mu, logvar).item()
-            f0_loss += calc_lf0_rmse(recon_batch.cpu().numpy().reshape(-1, 199), tmp[1].cpu().numpy().reshape(-1, 199), lf0_start_idx, vuv_start_idx)
+            test_loss += loss_function(recon_batch, tmp[1].view(-1, 199)[:, lf0_start_idx:lf0_start_idx+3], mu, logvar).item()
 
             del tmp
 
