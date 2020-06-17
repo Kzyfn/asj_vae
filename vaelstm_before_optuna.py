@@ -384,7 +384,7 @@ for epoch in range(1, num_epochs + 1):
         torch.save(model.state_dict(), args.output_dir + '/model_'+str(epoch+pre_trained_epoch)+'.pth')
     np.save(args.output_dir +'/loss_list.npy', np.array(loss_list))
     np.save(args.output_dir +'/test_loss_list.npy', np.array(test_loss_list))
-    np.save(args.output_dir +'/test_loss_list.npy',, np.array(f0_loss_list))
+    np.save(args.output_dir +'/test_loss_list.npy', np.array(f0_loss_list))
 # save the training model
 np.save(args.output_dir +'/loss_list.npy', np.array(loss_list))
 np.save(args.output_dir +'/test_loss_list.npy', np.array(test_loss_list))
