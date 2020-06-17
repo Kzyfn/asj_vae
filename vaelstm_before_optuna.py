@@ -202,7 +202,9 @@ from torch.autograd import Variable
 from tqdm import tnrange, tqdm
 from torch import optim
 import torch.nn.functional as F
-from models import VAE
+
+
+
 
 z_dim = args.z_dim
 dropout= args.dropout_ratio
@@ -210,7 +212,64 @@ dropout= args.dropout_ratio
 device = 'cuda' if torch.cuda.is_available() else 'cpu'
 
 
+class VAE(nn.Module):
+    def __init__(self, num_layers, z_dim, bidirectional=True, dropout=0.3):
+        super(VAE, self).__init__()
+        self.num_layers = num_layers
+        self.num_direction =  2 if bidirectional else 1
+        self.z_dim = z_dim
+        self.fc11 = nn.Linear(acoustic_linguisic_dim+acoustic_dim, acoustic_linguisic_dim+acoustic_dim)
 
+        self.lstm1 = nn.LSTM(acoustic_linguisic_dim+acoustic_dim, 400, num_layers, bidirectional=bidirectional, dropout=dropout)#入力サイズはここできまる
+        self.fc21 = nn.Linear(self.num_direction*400, z_dim)
+        self.fc22 = nn.Linear(self.num_direction*400, z_dim)
+        ##ここまでエンコーダ
+        
+        self.fc12 = nn.Linear(acoustic_linguisic_dim+z_dim, acoustic_linguisic_dim+z_dim)
+        self.lstm2 = nn.LSTM(acoustic_linguisic_dim+z_dim, 400, 2, bidirectional=bidirectional, dropout=dropout)
+        self.fc3 = nn.Linear(self.num_direction*400, 3)
+
+    def encode(self, linguistic_f, acoustic_f, mora_index):
+        x = torch.cat([linguistic_f, acoustic_f], dim=1)
+        x = self.fc11(x)
+        x = F.relu(x)
+
+        out, hc = self.lstm1(x.view( x.size()[0],1, -1))
+        out = out[mora_index]
+        
+        h1 = F.relu(out)
+
+        return self.fc21(h1), self.fc22(h1)
+
+    def reparameterize(self, mu, logvar):
+        std = torch.exp(0.5*logvar)
+        eps = torch.randn_like(std)
+        return mu + eps*std
+
+    def decode(self, z, linguistic_features, mora_index):
+        
+        z_tmp = torch.tensor([[0]*self.z_dim]*linguistic_features.size()[0], dtype=torch.float32, requires_grad=True).to(device)
+        
+        for i, mora_i in enumerate(mora_index):
+            prev_index = 0 if i == 0 else int(mora_index[i-1])
+            z_tmp[prev_index:int(mora_i)] = z[i]
+     
+
+        
+        x = torch.cat([linguistic_features, z_tmp.view(-1, self.z_dim)], dim=1)
+        x = self.fc12(x)
+        x = F.relu(x)
+
+        h3, (h, c) = self.lstm2(x.view(linguistic_features.size()[0], 1, -1))
+        h3 = F.relu(h3)
+        
+        return self.fc3(h3)#torch.sigmoid(self.fc3(h3))
+
+    def forward(self, linguistic_features, acoustic_features, mora_index):
+        mu, logvar = self.encode(linguistic_features, acoustic_features, mora_index)
+        z = self.reparameterize(mu, logvar)
+        
+        return self.decode(z, linguistic_features, mora_index), mu, logvar
 
 #model.load_state_dict(torch.load('vae_mse_0.01kld_z_changed_losssum_batchfirst_10.pth'))
 # In[104]:
@@ -296,9 +355,7 @@ def train(epoch):
 
         optimizer.zero_grad()
         recon_batch, mu, logvar = model(tmp[0], tmp[1], data[2])
-        print(recon_batch.view(-1, 199).size())
-        print(recon_batch.view(-1, 199)[:, lf0_start_idx:lf0_start_idx+3].size())
-        loss = loss_function(recon_batch.view(-1, 199)[:, lf0_start_idx:lf0_start_idx+3], tmp[1].view(-1, 199)[:, lf0_start_idx:lf0_start_idx+3], mu, logvar)
+        loss = loss_function(recon_batch.view(-1, 199), tmp[1].view(-1, 199)[:, lf0_start_idx:lf0_start_idx+3], mu, logvar)
         loss.backward()
         train_loss += loss.item()
         optimizer.step()
