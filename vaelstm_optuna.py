@@ -204,7 +204,6 @@ from .models import VAE
 # In[104]:
 
 
-import pandas as pd
 
 def objective(trial):
     mora_index_lists = sorted(glob(join('data/basic5000/mora_index', "squeezed_*.csv")))

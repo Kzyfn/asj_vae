@@ -218,7 +218,7 @@ import pandas as pd
 def objective(trial):
     mora_index_lists = sorted(glob(join('data/basic5000/mora_index', "squeezed_*.csv")))
     #mora_index_lists = mora_index_lists[:len(mora_index_lists)-5] # last 5 is real testset
-    mora_index_lists_for_model = [np.array(pd.read_csv(path)).reshape(-1) for path in mora_index_lists]
+    mora_index_lists_for_model = [np.loaadtxt(path).reshape(-1) for path in mora_index_lists]
 
     train_mora_index_lists = []
     test_mora_index_lists = []
@@ -235,8 +235,8 @@ def objective(trial):
             train_mora_index_lists.append(mora_i)
 
 
-    num_lstm_layers = trial.suggest_int('num_lstm_layers', 1, 4)
-    z_dim = trial.suggest_categorical('z_dim', [1, 2, 4, 8, 16, 32])
+    num_lstm_layers = trial.suggest_int('num_lstm_layers', 1, 3)
+    z_dim = trial.suggest_categorical('z_dim', [1, 2, 8,])
     num_class = trial.suggest_int('num_class', 2, 4)
 
     model = VQVAE(num_class=num_class, num_layers=num_lstm_layers, z_dim=z_dim).to(device)
@@ -281,12 +281,12 @@ def objective(trial):
             tmp = []
 
             
-            for j in range(3):
+            for j in range(2):
                 tmp.append(torch.from_numpy(data[j]).to(device))
 
 
             optimizer.zero_grad()
-            recon_batch, z, z_unquantized = model(tmp[0], tmp[1], tmp[2])
+            recon_batch, z, z_unquantized = model(tmp[0], tmp[1], data[2])
             loss = loss_function(recon_batch, tmp[1], z, z_unquantized)
             loss.backward()
             train_loss += loss.item()
@@ -313,10 +313,10 @@ def objective(trial):
             for i, data, in enumerate(test_loader):
                 tmp = []
         
-                for j in range(3):
+                for j in range(2):
                     tmp.append(torch.tensor(data[j]).to(device))
 
-                recon_batch, z, z_unquantized = model(tmp[0], tmp[1], tmp[2])
+                recon_batch, z, z_unquantized = model(tmp[0], tmp[1], data[2])
                 test_loss += loss_function(recon_batch, tmp[1],  z, z_unquantized).item()
                 f0_loss += calc_lf0_rmse(recon_batch.cpu().numpy().reshape(-1, 199), tmp[1].cpu().numpy().reshape(-1, 199), lf0_start_idx, vuv_start_idx)
                 del tmp
