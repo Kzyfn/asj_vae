@@ -327,7 +327,7 @@ if os.path.isfile(args.output_dir +'/test_loss_list.npy'):
     loss_list = np.load(args.output_dir +'/test_loss_list.npy')
 
 num_epochs = args.num_epoch
-
+test_f0_losses = []
 #model.load_state_dict(torch.load('vae.pth'))
 
 for epoch in range(1, num_epochs + 1):
@@ -345,6 +345,7 @@ for epoch in range(1, num_epochs + 1):
     # logging
     loss_list.append(loss)
     test_loss_list.append(test_loss)
+    test_f0_losses.append(test_f0_loss)
 
     print(time.time() - start)
 
@@ -357,6 +358,8 @@ for epoch in range(1, num_epochs + 1):
         torch.save(model.state_dict(), args.output_dir + '/model_'+str(epoch+pre_trained_epoch)+'.pth')
     np.save(args.output_dir +'/loss_list.npy', np.array(loss_list))
     np.save(args.output_dir +'/test_loss_list.npy', np.array(test_loss_list))
+    np.save(args.output_dir +'/test_f0loss_list.npy', np.array(test_f0_losses))
+
 
 # save the training model
 np.save(args.output_dir +'/loss_list.npy', np.array(loss_list))
