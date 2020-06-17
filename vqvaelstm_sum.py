@@ -130,7 +130,7 @@ def calc_lf0_rmse(natural, generated, lf0_idx, vuv_idx):
     idx = (natural[:, vuv_idx] * (generated[:, vuv_idx] >= 0.5)).astype(bool)
     return rmse(natural[idx, lf0_idx], generated[idx, lf0_idx]) * 1200 / np.log(2)  # unit: [cent]
 
-
+from models import VQVAE, BinaryFileSource
 
 
 
@@ -177,7 +177,7 @@ from torch.autograd import Variable
 from tqdm import tnrange, tqdm
 from torch import optim
 import torch.nn.functional as F
-from models import VQVAE, BinaryFileSource
+
 
 z_dim = args.z_dim
 dropout= args.dropout_ratio
