@@ -15,12 +15,6 @@ acoustic_linguisic_dim = 442#上のやつ+frame_features とは？？
 duration_dim = 1
 acoustic_dim = mgc_dim + lf0_dim + vuv_dim + bap_dim #aoustice modelで求めたいもの
 
-fs = 48000
-frame_period = 5
-fftlen = pyworld.get_cheaptrick_fft_size(fs)
-alpha = pysptk.util.mcepalpha(fs)
-hop_length = int(0.001 * frame_period * fs)
-
 mgc_start_idx = 0
 lf0_start_idx = 180
 vuv_start_idx = 183
