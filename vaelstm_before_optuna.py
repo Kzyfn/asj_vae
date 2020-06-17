@@ -290,7 +290,7 @@ def train(epoch):
         tmp = []
 
         
-        for j in range(3):
+        for j in range(2):
             tmp.append(torch.from_numpy(data[j]).to(device))
 
 
@@ -323,7 +323,7 @@ def test(epoch):
             tmp = []
 
      
-            for j in range(3):
+            for j in range(2):
                 tmp.append(torch.tensor(data[j]).to(device))
 
 
