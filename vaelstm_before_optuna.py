@@ -266,14 +266,12 @@ def loss_function(recon_x, x, mu, logvar):
     return MSE +  KLD
 
 
-func_tensor = np.vectorize(torch.from_numpy)
-
 
 train_ratio = int(args.train_ratio*len(train_mora_index_lists))#1
 
-X_acoustic_train = [X['acoustic']['train'][i] for i in range(len(X['acoustic']['train']))][:train_ratio]
-Y_acoustic_train = [Y['acoustic']['train'][i] for i in range(len(Y['acoustic']['train']))][:train_ratio]
-train_mora_index_lists = [train_mora_index_lists[i] for i in range(len(train_mora_index_lists))][:train_ratio]
+X_acoustic_train = [X['acoustic']['train'][i] for i in range(len(X['acoustic']['train']))]
+Y_acoustic_train = [Y['acoustic']['train'][i] for i in range(len(Y['acoustic']['train']))]
+train_mora_index_lists = [train_mora_index_lists[i] for i in range(len(train_mora_index_lists))]
 
 train_num = len(X_acoustic_train)
 
