@@ -131,32 +131,7 @@ def calc_lf0_rmse(natural, generated, lf0_idx, vuv_idx):
     return rmse(natural[idx, lf0_idx], generated[idx, lf0_idx]) * 1200 / np.log(2)  # unit: [cent]
 
 
-class BinaryFileSource(FileDataSource):
-    def __init__(self, data_root, dim, train):
-        self.data_root = data_root
-        self.dim = dim
-        self.train = train
-    def collect_files(self):
-        files = sorted(glob(join(self.data_root, "*.bin")))
-        #files = files[:len(files)-5] # last 5 is real testset
-        train_files = []
-        test_files = []
-        #train_files, test_files = train_test_split(files, test_size=test_size, random_state=random_state)
 
-        for i, path in enumerate(files):
-            if (i - 1) % 20 == 0:#test
-                pass
-            elif i % 20 == 0:#valid
-                test_files.append(path)
-            else:
-                train_files.append(path)
-
-        if self.train:
-            return train_files
-        else:
-            return test_files
-    def collect_features(self, path):
-        return np.fromfile(path, dtype=np.float32).reshape(-1, self.dim)
 
 
 X = {"acoustic": {}}
@@ -202,70 +177,14 @@ from torch.autograd import Variable
 from tqdm import tnrange, tqdm
 from torch import optim
 import torch.nn.functional as F
-
+from models import VQVAE, BinaryFileSource
 
 z_dim = args.z_dim
 dropout= args.dropout_ratio
 
 device = 'cuda' if torch.cuda.is_available() else 'cpu'
 
-class VQVAE(nn.Module):
-    def __init__(self, bidirectional=True, num_layers=args.num_lstm_layers, num_class=args.num_class, z_dim):
-        super(VQVAE, self).__init__()
-        self.num_layers = num_layers
-        self.num_direction =  2 if bidirectional else 1
-        self.quantized_vectors = nn.Embedding(num_class, z_dim)#torch.tensor([[i]*z_dim for i in range(nc)], requires_grad=True)
-        #self.quantized_vectors.weight.data.uniform_(-1/num_class, 1/num_class)
 
-        self.lstm1 = nn.LSTM(acoustic_linguisic_dim+acoustic_dim, 400, num_layers, bidirectional=bidirectional, dropout=dropout)#入力サイズはここできまる
-        self.fc2 = nn.Linear(self.num_direction*400, z_dim)
-        ##ここまでエンコーダ
-        
-        self.lstm2 = nn.LSTM(acoustic_linguisic_dim+z_dim, 400, num_layers, bidirectional=bidirectional, dropout=dropout)
-        self.fc3 = nn.Linear(self.num_direction*400, acoustic_dim)
-
-
-    def choose_quantized_vector(self, x):
-        with torch.no_grad():
-            error = torch.sum((self.quantized_vectors.weight - x)**2, dim=1)
-            min_index = torch.argmin(error).item()
-            
-        return self.quantized_vectors.weight[min_index]
-
-
-    def encode(self, linguistic_f, acoustic_f, mora_index):
-        x = torch.cat([linguistic_f, acoustic_f], dim=1)
-        out, hc = self.lstm1(x.view( x.size()[0],1, -1))
-        nonzero_indices = torch.nonzero(mora_index.view(-1).data).squeeze()
-        out = out[nonzero_indices]
-        del nonzero_indices
-        
-        h1 = F.relu(out)
-
-        return self.fc2(h1),
-
-
-
-    def decode(self, z, linguistic_features, mora_index):
-        
-        z_tmp = torch.tensor([[0]*z_dim]*linguistic_features.size()[0], dtype=torch.float32, requires_grad=True).to(device)
-        
-        for i, mora_i in enumerate(mora_index):
-            prev_index = 0 if i == 0 else int(mora_index[i-1])
-            z_tmp[prev_index:int(mora_i)] = z[i]
-        
-        x = torch.cat([linguistic_features, z_tmp.view(-1, z_dim)], dim=1).view(linguistic_features.size()[0], 1, -1)
-        
-        h3, (h, c) = self.lstm2(x)
-        h3 = F.relu(h3)
-        
-        return self.fc3(h3)#torch.sigmoid(self.fc3(h3))
-
-    def forward(self, linguistic_features, acoustic_features, mora_index):
-        z_not_quantized = self.encode(linguistic_features, acoustic_features, mora_index)
-        z = self.choose_quantized_vector(z_not_quantized)
-        
-        return self.decode(z, linguistic_features, mora_index), z, z_not_quantized
 
 
 
