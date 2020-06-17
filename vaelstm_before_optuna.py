@@ -202,7 +202,7 @@ from torch.autograd import Variable
 from tqdm import tnrange, tqdm
 from torch import optim
 import torch.nn.functional as F
-from .model import VAE
+from models import VAE
 
 z_dim = args.z_dim
 dropout= args.dropout_ratio
