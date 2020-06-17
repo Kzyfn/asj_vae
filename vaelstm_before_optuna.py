@@ -296,6 +296,7 @@ def train(epoch):
 
         optimizer.zero_grad()
         recon_batch, mu, logvar = model(tmp[0], tmp[1], data[2])
+        print(recon_batch.view(-1, 199).size())
         print(recon_batch.view(-1, 199)[:, lf0_start_idx:lf0_start_idx+3].size())
         loss = loss_function(recon_batch.view(-1, 199)[:, lf0_start_idx:lf0_start_idx+3], tmp[1].view(-1, 199)[:, lf0_start_idx:lf0_start_idx+3], mu, logvar)
         loss.backward()
