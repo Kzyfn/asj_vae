@@ -122,6 +122,13 @@ windows = [
 use_phone_alignment = True
 acoustic_subphone_features = "coarse_coding" if use_phone_alignment else "full" #とは？
 
+def rmse(a, b):
+    return np.sqrt(np.mean((a - b) ** 2))
+ 
+def calc_lf0_rmse(natural, generated, lf0_idx, vuv_idx):
+    idx = (natural[:, vuv_idx] * (generated[:, vuv_idx] >= 0.5)).astype(bool)
+    return rmse(natural[idx, lf0_idx], generated[idx, lf0_idx]) * 1200 / np.log(2)  # unit: [cent]
+
 
 
 class BinaryFileSource(FileDataSource):
@@ -195,76 +202,12 @@ from torch.autograd import Variable
 from tqdm import tnrange, tqdm
 from torch import optim
 import torch.nn.functional as F
-
+from .model import VAE
 
 z_dim = args.z_dim
 dropout= args.dropout_ratio
 
 device = 'cuda' if torch.cuda.is_available() else 'cpu'
-
-class VAE(nn.Module):
-    def __init__(self, bidirectional=True, num_layers=args.num_lstm_layers):
-        super(VAE, self).__init__()
-        self.num_layers = num_layers
-        self.num_direction =  2 if bidirectional else 1
-
-        self.fc11 = nn.Linear(acoustic_linguisic_dim+acoustic_dim, acoustic_linguisic_dim+acoustic_dim)
-
-        self.lstm1 = nn.LSTM(acoustic_linguisic_dim+acoustic_dim, 400, num_layers, bidirectional=bidirectional, dropout=dropout)#入力サイズはここできまる
-        self.fc21 = nn.Linear(self.num_direction*400, z_dim)
-        self.fc22 = nn.Linear(self.num_direction*400, z_dim)
-        ##ここまでエンコーダ
-        
-        self.fc12 = nn.Linear(acoustic_linguisic_dim+z_dim, acoustic_linguisic_dim+z_dim)
-        self.lstm2 = nn.LSTM(acoustic_linguisic_dim+z_dim, 400, 2, bidirectional=bidirectional, dropout=dropout)
-        self.fc3 = nn.Linear(self.num_direction*400, acoustic_dim)
-
-    def encode(self, linguistic_f, acoustic_f, mora_index):
-        x = torch.cat([linguistic_f, acoustic_f], dim=1)
-        x = self.fc11(x)
-        x = F.relu(x)
-
-        out, hc = self.lstm1(x.view( x.size()[0],1, -1))
-        nonzero_indices = torch.nonzero(mora_index.view(-1).data).squeeze()
-        out = out[nonzero_indices]
-        del nonzero_indices
-        
-        h1 = F.relu(out)
-
-        return self.fc21(h1), self.fc22(h1)
-
-    def reparameterize(self, mu, logvar):
-        std = torch.exp(0.5*logvar)
-        eps = torch.randn_like(std)
-        return mu + eps*std
-
-    def decode(self, z, linguistic_features, mora_index):
-        
-        z_tmp = torch.tensor([[0]*z_dim]*linguistic_features.size()[0], dtype=torch.float32, requires_grad=True).to(device)
-        count = 0
-        prev_index = 0
-        for i, mora_i in enumerate(mora_index):
-            if mora_i == 1:
-                z_tmp[prev_index:i] = z[count]
-                prev_index = i
-                count += 1       
-
-        
-        x = torch.cat([linguistic_features, z_tmp.view(-1, z_dim)], dim=1)
-        x = self.fc12(x)
-        x = F.relu(x)
-
-        h3, (h, c) = self.lstm2(x.view(linguistic_features.size()[0], 1, -1))
-        h3 = F.relu(h3)
-        
-        return self.fc3(h3)#torch.sigmoid(self.fc3(h3))
-
-    def forward(self, linguistic_features, acoustic_features, mora_index):
-        mu, logvar = self.encode(linguistic_features, acoustic_features, mora_index)
-        z = self.reparameterize(mu, logvar)
-        
-        return self.decode(z, linguistic_features, mora_index), mu, logvar
-
 
 
 
@@ -299,6 +242,7 @@ for i, mora_i in enumerate(mora_index_lists_for_model):
 
 
 model = VAE().to(device)
+
 
 if args.model_path != '':
     model.load_state_dict(torch.load(args.model_path))
@@ -375,6 +319,7 @@ def train(epoch):
 def test(epoch):
     model.eval()
     test_loss = 0
+    f0_loss = 0
     with torch.no_grad():
         for i, data, in enumerate(test_loader):
             tmp = []
@@ -386,13 +331,14 @@ def test(epoch):
 
             recon_batch, mu, logvar = model(tmp[0], tmp[1], tmp[2])
             test_loss += loss_function(recon_batch, tmp[1], mu, logvar).item()
+            f0_loss += calc_lf0_rmse(recon_batch.cpu().numpy().reshape(-1, 199), tmp[1].cpu().numpy().reshape(-1, 199), lf0_start_idx, vuv_start_idx)
 
             del tmp
 
     test_loss /= len(test_loader)
     print('====> Test set loss: {:.4f}'.format(test_loss))
     
-    return test_loss
+    return test_loss, f0_loss
 
 
 
@@ -407,15 +353,14 @@ test_loss_list = []
 if os.path.isfile(args.output_dir +'/test_loss_list.npy'):
     loss_list = list(np.load(args.output_dir +'/test_loss_list.npy'))
 
+f0_loss_list = []
 num_epochs = args.num_epoch
 
 #model.load_state_dict(torch.load('vae.pth'))
 
 for epoch in range(1, num_epochs + 1):
     loss = train(epoch)
-    test_loss = test(epoch)
-    print(loss)
-    print(test_loss)
+    test_loss, f0_loss = test(epoch)
 
     print('epoch [{}/{}], loss: {:.4f} test_loss: {:.4f}'.format(
         epoch + 1,
@@ -426,6 +371,7 @@ for epoch in range(1, num_epochs + 1):
     # logging
     loss_list.append(loss)
     test_loss_list.append(test_loss)
+    f0_loss_list.append(f0_loss)
 
     print(time.time() - start)
 
@@ -438,7 +384,7 @@ for epoch in range(1, num_epochs + 1):
         torch.save(model.state_dict(), args.output_dir + '/model_'+str(epoch+pre_trained_epoch)+'.pth')
     np.save(args.output_dir +'/loss_list.npy', np.array(loss_list))
     np.save(args.output_dir +'/test_loss_list.npy', np.array(test_loss_list))
-
+    np.save(args.output_dir +'/test_loss_list.npy',, np.array(f0_loss_list))
 # save the training model
 np.save(args.output_dir +'/loss_list.npy', np.array(loss_list))
 np.save(args.output_dir +'/test_loss_list.npy', np.array(test_loss_list))
