@@ -241,7 +241,7 @@ for i, mora_i in enumerate(mora_index_lists_for_model):
 
 
 
-model = VAE().to(device)
+model = VAE(args.num_lstm_layers, args.z_dim).to(device)
 
 
 if args.model_path != '':
