@@ -4,6 +4,35 @@ from tqdm import tqdm
 from torch import optim
 import torch.nn.functional as F
 
+
+mgc_dim = 180#メルケプストラム次数　？？
+lf0_dim = 3#対数fo　？？ なんで次元が３？
+vuv_dim = 1#無声or 有声フラグ　？？
+bap_dim = 15#発話ごと非周期成分　？？
+
+duration_linguistic_dim = 438#question_jp.hed で、ラベルに対する言語特徴量をルールベースで記述してる
+acoustic_linguisic_dim = 442#上のやつ+frame_features とは？？
+duration_dim = 1
+acoustic_dim = mgc_dim + lf0_dim + vuv_dim + bap_dim #aoustice modelで求めたいもの
+
+fs = 48000
+frame_period = 5
+fftlen = pyworld.get_cheaptrick_fft_size(fs)
+alpha = pysptk.util.mcepalpha(fs)
+hop_length = int(0.001 * frame_period * fs)
+
+mgc_start_idx = 0
+lf0_start_idx = 180
+vuv_start_idx = 183
+bap_start_idx = 184
+
+windows = [
+    (0, 0, np.array([1.0])),
+    (1, 1, np.array([-0.5, 0.0, 0.5])),
+    (1, 1, np.array([1.0, -2.0, 1.0])),
+]
+
+
 device = 'cuda' if torch.cuda.is_available() else 'cpu'
 
 class VAE(nn.Module):
