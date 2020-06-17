@@ -98,7 +98,7 @@ class VAE(nn.Module):
 
 
 class VQVAE(nn.Module):
-    def __init__(self, bidirectional=True, num_layers=2, num_class=2, z_dim=1):
+    def __init__(self, bidirectional=True, num_layers=2, num_class=2, z_dim=1, dropout=0.3):
         super(VQVAE, self).__init__()
         self.num_layers = num_layers
         self.num_direction =  2 if bidirectional else 1
