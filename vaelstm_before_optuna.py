@@ -219,7 +219,7 @@ device = 'cuda' if torch.cuda.is_available() else 'cpu'
 import pandas as pd
 
 
-mora_index_lists = sorted(glob(join('data/basic5000/squeezed_mora_index', "*.csv")))
+mora_index_lists = sorted(glob(join('data/basic5000/mora_index', "squeezed_*.csv")))
 #mora_index_lists = mora_index_lists[:len(mora_index_lists)-5] # last 5 is real testset
 mora_index_lists_for_model = [np.array(pd.read_csv(path)).reshape(-1) for path in mora_index_lists]
 
