@@ -332,7 +332,7 @@ X_acoustic_train = [X['acoustic']['train'][i] for i in range(len(X['acoustic']['
 Y_acoustic_train = [Y['acoustic']['train'][i] for i in range(len(Y['acoustic']['train']))]
 train_mora_index_lists = [train_mora_index_lists[i] for i in range(len(train_mora_index_lists))]
 
-train_num = int(len(X_acoustic_train)*args['train_ratio'])
+train_num = int(len(X_acoustic_train)*args.train_ratio)
 
 X_acoustic_test = [X['acoustic']['test'][i] for i in range(len(X['acoustic']['test']))]
 Y_acoustic_test = [Y['acoustic']['test'][i] for i in range(len(Y['acoustic']['test']))]
