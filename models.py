@@ -49,7 +49,7 @@ class VAE(nn.Module):
         
         self.fc12 = nn.Linear(acoustic_linguisic_dim+z_dim, acoustic_linguisic_dim+z_dim)
         self.lstm2 = nn.LSTM(acoustic_linguisic_dim+z_dim, 400, 2, bidirectional=bidirectional, dropout=dropout)
-        self.fc3 = nn.Linear(self.num_direction*400, acoustic_dim)
+        self.fc3 = nn.Linear(self.num_direction*400, 1)
 
     def encode(self, linguistic_f, acoustic_f, mora_index):
         x = torch.cat([linguistic_f, acoustic_f], dim=1)
@@ -115,7 +115,7 @@ class VQVAE(nn.Module):
 
         self.fc12 = nn.Linear(acoustic_linguisic_dim+z_dim, acoustic_linguisic_dim+z_dim)
         self.lstm2 = nn.LSTM(acoustic_linguisic_dim+z_dim, 400, num_layers, bidirectional=bidirectional, dropout=dropout)
-        self.fc3 = nn.Linear(self.num_direction*400, acoustic_dim)
+        self.fc3 = nn.Linear(self.num_direction*400, 1)
 
 
     def choose_quantized_vector(self, x):
@@ -169,6 +169,8 @@ class VQVAE(nn.Module):
         z = self.quantize_z(z_not_quantized)
         
         return self.decode(z, linguistic_features, mora_index), z, z_not_quantized[0]
+
+
 
 class BinaryFileSource(FileDataSource):
     def __init__(self, data_root, dim, train):
