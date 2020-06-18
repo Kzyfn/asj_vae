@@ -1,5 +1,7 @@
 import numpy as np
 import argparse
+from glob import glob
+from models import BinaryFileSource
 
 def parse():
     parser = argparse.ArgumentParser(description='LSTM VAE', )
@@ -11,7 +13,7 @@ def parse():
     )
     parser.add_argument(
         '-nl',
-        '--num_lstm_layers',
+        '--num_layers',
         type=int,
         #required=True,
         default=1,
@@ -56,21 +58,6 @@ def parse():
     return parser.parse_args()
 
 
-def create_loader(x_train, x_test, y_train, y_test, mora_i_train, mora_i_test):
-    X_acoustic_train = [x_train['acoustic']['train'][i] for i in range(len(x_train['acoustic']['train']))]
-    Y_acoustic_train = [y_train['acoustic']['train'][i] for i in range(len(y_train['acoustic']['train']))]
-    train_mora_index_lists = [mora_i_train[i] for i in range(len(mora_i_train))]
-
-
-    X_acoustic_test = [x_test['acoustic']['test'][i] for i in range(len(x_test['acoustic']['test']))]
-    Y_acoustic_test = [y_test['acoustic']['test'][i] for i in range(len(y_test['acoustic']['test']))]
-    test_mora_index_lists = [mora_i_test[i] for i in range(len(mora_i_test))]
-
-    train_loader = [[X_acoustic_train[i], Y_acoustic_train[i], train_mora_index_lists[i]] for i in range(len(mora_i_train))]
-    test_loader = [[X_acoustic_test[i], Y_acoustic_test[i], test_mora_index_lists[i]] for i in range(len(mora_i_test))]
-
-    return train_loader, test_loader
-
 def train(epoch, model, train_loader, loss_function, optimizer):
     model.train()
     train_loss = 0
@@ -112,3 +99,59 @@ def test(epoch, model, test_loader, loss_function):
     print('====> Test set loss: {:.4f}'.format(test_loss / len(test_loader)))
     
     return test_loss, f0_loss
+
+def vreate_loader():
+    DATA_ROOT = "./data/basic5000"
+    X = {"acoustic": {}}
+    Y = {"acoustic": {}}
+    utt_lengths = { "acoustic": {}}
+    for ty in ["acoustic"]:
+        for phase in ["train", "test"]:
+            train = phase == "train"
+            x_dim = duration_linguistic_dim if ty == "duration" else acoustic_linguisic_dim
+            y_dim = duration_dim if ty == "duration" else acoustic_dim
+            X[ty][phase] = FileSourceDataset(BinaryFileSource(join(DATA_ROOT, "X_{}".format(ty)),
+                                                        dim=x_dim,
+                                                        train=train))
+            Y[ty][phase] = FileSourceDataset(BinaryFileSource(join(DATA_ROOT, "Y_{}".format(ty)),
+                                                        dim=y_dim,
+                                                        train=train))
+            utt_lengths[ty][phase] = np.array([len(x) for x in X[ty][phase]], dtype=np.int)
+
+    X_min = {}
+    X_max = {}
+    Y_mean = {}
+    Y_var = {}
+    Y_scale = {}
+
+    for typ in ["acoustic"]:
+        X_min[typ], X_max[typ] = minmax(X[typ]["train"], utt_lengths[typ]["train"])
+        Y_mean[typ], Y_var[typ] = meanvar(Y[typ]["train"], utt_lengths[typ]["train"])
+        Y_scale[typ] = np.sqrt(Y_var[typ])
+
+    mora_index_lists = sorted(glob(join('data/basic5000/mora_index', "squeezed_*.csv")))
+    mora_index_lists_for_model = [np.loadtxt(path).reshape(-1) for path in mora_index_lists]
+
+    train_mora_index_lists = []
+    test_mora_index_lists = []
+
+    for i, mora_i in enumerate(mora_index_lists_for_model):
+        if (i - 1) % 20 == 0:#test
+            pass
+        elif i % 20 == 0:#valid
+            test_mora_index_lists.append(mora_i)
+        else:
+            train_mora_index_lists.append(mora_i)
+
+    X_acoustic_train = [X['acoustic']['train'][i] for i in range(len(X['acoustic']['train']))]
+    Y_acoustic_train = [Y['acoustic']['train'][i] for i in range(len(Y['acoustic']['train']))]
+    train_mora_index_lists = [train_mora_index_lists[i] for i in range(len(train_mora_index_lists))]
+
+    X_acoustic_test = [X['acoustic']['test'][i] for i in range(len(X['acoustic']['test']))]
+    Y_acoustic_test = [Y['acoustic']['test'][i] for i in range(len(Y['acoustic']['test']))]
+    test_mora_index_lists = [test_mora_index_lists[i] for i in range(len(test_mora_index_lists))]
+
+    train_loader = [[X_acoustic_train[i], Y_acoustic_train[i], train_mora_index_lists[i]] for i in range(len(train_mora_index_lists))]
+    test_loader = [[X_acoustic_test[i], Y_acoustic_test[i], test_mora_index_lists[i]] for i in range(len(test_mora_index_lists))]
+
+    return train_loader, test_loader
