@@ -117,7 +117,7 @@ def test(epoch, model, test_loader, loss_function):
 
     test_loss /= len(test_loader)
     f0_loss /= len(test_loader)
-    print('====> Test set loss: {:.4f}'.format(test_loss / len(test_loader)))
+    print('====> Test set loss: {:.4f}'.format(test_loss))
     
     return test_loss, f0_loss
 
