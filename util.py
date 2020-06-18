@@ -8,7 +8,7 @@ import torch
 import torch.nn.functional as F
 
 from models import BinaryFileSource
-from loss_func import calc_lf0_rmse
+from loss_func import calc_lf0_rmse, rmse
 
 mgc_dim = 180#メルケプストラム次数　？？
 lf0_dim = 3#対数fo　？？ なんで次元が３？
@@ -112,7 +112,7 @@ def test(epoch, model, test_loader, loss_function):
         
             recon_batch, z_mu, z_unquantized_logvar = model(tmp[0], tmp[1], data[2])
             test_loss += loss_function(recon_batch, tmp[1][:, lf0_start_idx], z_mu, z_unquantized_logvar).item()
-            f0_loss += np.sqrt(F.mse_loss(recon_batch.cpu().numpy().reshape(-1, 1), tmp[1].cpu().numpy().reshape(-1, 199)[:, lf0_start_idx]).item())
+            f0_loss += rmse(recon_batch.cpu().numpy().reshape(-1, 1), tmp[1].cpu().numpy().reshape(-1, 199)[:, lf0_start_idx])
             del tmp
 
     test_loss /= len(test_loader)
