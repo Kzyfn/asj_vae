@@ -13,7 +13,7 @@ from util import create_loader, train, test, parse
 
 device = 'cuda' if torch.cuda.is_available() else 'cpu'
 
-def main(args, x_train, x_test, y_train, y_test, mora_i_train, mora_i_test):
+def main(args):
     """
 
     """
@@ -25,7 +25,7 @@ def main(args, x_train, x_test, y_train, y_test, mora_i_train, mora_i_test):
 
     train_num = int(args['train_ratio']*len(mora_i_train))#1
 
-    train_loader, test_loader = create_loader(x_train, x_test, y_train, y_test, mora_i_train, mora_i_test)
+    train_loader, test_loader = create_loader()
     train_loader = train_loader[:train_num]
 
 
@@ -58,5 +58,9 @@ def main(args, x_train, x_test, y_train, y_test, mora_i_train, mora_i_test):
 
 if __name__ == '__main__':
     args = parse()
+
+    
     main(vars(args))
+
+
 
