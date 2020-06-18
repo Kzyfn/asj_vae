@@ -133,7 +133,7 @@ def test(epoch, model, test_loader, loss_function):
     
     return test_loss, f0_loss
 
-def create_loader():
+def create_loader(test=False):
     DATA_ROOT = "./data/basic5000"
     X = {"acoustic": {}}
     Y = {"acoustic": {}}
