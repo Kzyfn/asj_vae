@@ -36,7 +36,7 @@ def main(args):
 
         print('epoch [{}/{}], loss: {:.4f} test_loss: {:.4f}'.format(
             epoch + 1,
-            num_epochs,
+            args['num_epoch'],
             loss,
             test_loss))
 
