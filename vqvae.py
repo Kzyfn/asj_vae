@@ -5,7 +5,7 @@ import torch.nn.functional as F
 import time 
 import numpy as np
 from tqdm import tnrange, tqdm
-
+import optuna
 
 from models import VQVAE, BinaryFileSource
 from loss_func import calc_lf0_rmse, vqvae_losss
@@ -13,7 +13,7 @@ from util import create_loader, train, test, parse
 
 device = 'cuda' if torch.cuda.is_available() else 'cpu'
 
-def main(args):
+def train_vqvae(args, trial=None):
     """
     """
     model = VQVAE(num_layers=args["num_layers"], z_dim=args['z_dim'], num_class=args['num_class']).to(device)
@@ -46,6 +46,14 @@ def main(args):
         test_loss_list.append(test_loss)
         f0_loss_list.append(f0_loss)
 
+        if trial is not None:
+            trial.report(test_loss, epoch-1)
+
+        if trial is not None:
+            if trial.should_prune():
+                return optuna.TrialPruned()
+
+
         print(time.time() - start)
 
         if epoch % 5 == 0:
@@ -54,8 +62,9 @@ def main(args):
         np.save(args['output_dir'] +'/test_loss_list.npy', np.array(test_loss_list))
         np.save(args['output_dir'] +'/test_f0loss_list.npy', np.array(f0_loss_list))
 
+    return f0_loss
 
 if __name__ == '__main__':
     args = parse()
-    main(vars(args))
+    train_vqvae(vars(args))
 
