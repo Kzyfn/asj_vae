@@ -11,9 +11,9 @@ from models import VQVAE, BinaryFileSource
 from loss_func import calc_lf0_rmse, vqvae_losss
 from util import create_loader, train, test, parse
 
-device = 'cuda' if torch.cuda.is_availabel() else 'cpu'
+device = 'cuda' if torch.cuda.is_available() else 'cpu'
 
-def main(args, x_train, x_test, y_train, y_test, mora_i_train, mora_i_test):
+def main(args):
     """
     """
     model = VQVAE(num_layers=args["num_layers"], z_dim=args['z_dim'], num_class=args['num_class']).to(device)
@@ -24,7 +24,7 @@ def main(args, x_train, x_test, y_train, y_test, mora_i_train, mora_i_test):
 
     train_num = int(args['train_ratio']*len(mora_i_train))#1
 
-    train_loader, test_loader = create_loader(x_train, x_test, y_train, y_test, mora_i_train, mora_i_test)
+    train_loader, test_loader = create_loader()
     train_loader = train_loader[:train_num]
 
 
