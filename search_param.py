@@ -1,5 +1,6 @@
 import optuna
 from os.path import join
+import os
 
 from util import parse
 from vae import train_vae
