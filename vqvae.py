@@ -3,7 +3,7 @@ from torch import nn
 from torch import optim
 import torch.nn.functional as F
 import time 
-
+import numpy as np
 from tqdm import tnrange, tqdm
 
 
