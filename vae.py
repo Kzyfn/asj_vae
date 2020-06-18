@@ -9,7 +9,7 @@ from tqdm import tnrange, tqdm
 
 from models import VAE, BinaryFileSource
 from loss_func import calc_lf0_rmse, vae_loss
-from util import create_loader, train, test
+from util import create_loader, train, test, parse
 
 device = 'cuda' if torch.cuda.is_availabel() else 'cpu'
 
@@ -50,8 +50,13 @@ def main(args, x_train, x_test, y_train, y_test, mora_i_train, mora_i_test):
         print(time.time() - start)
 
         if epoch % 5 == 0:
-            torch.save(model.state_dict(), args['output_dir'] + '/model_{}.pth'.format(epoch))
+            torch.save(model.state_dict(), args['output_dir'] + '/vae_model_{}.pth'.format(epoch))
         np.save(args['output_dir'] +'/loss_list.npy', np.array(loss_list))
         np.save(args['output_dir'] +'/test_loss_list.npy', np.array(test_loss_list))
         np.save(args['output_dir'] +'/test_f0loss_list.npy', np.array(f0_loss_list))
+
+
+if __name__ == '__main__':
+    args = parse()
+    main(vars(args))
 

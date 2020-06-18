@@ -49,7 +49,7 @@ def main(args, x_train, x_test, y_train, y_test, mora_i_train, mora_i_test):
         print(time.time() - start)
 
         if epoch % 5 == 0:
-            torch.save(model.state_dict(), args['output_dir'] + '/model_{}.pth'.format(epoch))
+            torch.save(model.state_dict(), args['output_dir'] + '/vqvae_model_{}.pth'.format(epoch))
         np.save(args['output_dir'] +'/loss_list.npy', np.array(loss_list))
         np.save(args['output_dir'] +'/test_loss_list.npy', np.array(test_loss_list))
         np.save(args['output_dir'] +'/test_f0loss_list.npy', np.array(f0_loss_list))
