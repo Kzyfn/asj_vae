@@ -162,14 +162,14 @@ def create_loader(test=False):
     X_acoustic_train = [
         minmax(
             X["acoustic"]["train"][i],
-            X_min["train"],
-            X_max["train"],
+            X_min["acoustic"],
+            X_max["acoustic"],
             feature_range=(0.01, 0.99),
         )
         for i in range(len(X["acoustic"]["train"]))
     ]
     Y_acoustic_train = [
-        scale(Y["acoustic"]["train"][i], Y_mean["train"], Y_scale["train"])
+        scale(Y["acoustic"]["train"][i], Y_mean["acoustic"], Y_scale["acoustic"])
         for i in range(len(Y["acoustic"]["train"]))
     ]
     train_mora_index_lists = [
@@ -179,14 +179,14 @@ def create_loader(test=False):
     X_acoustic_test = [
         minmax(
             X["acoustic"]["test"][i],
-            X_min["train"],
-            X_max["train"],
+            X_min["acoustic"],
+            X_max["acoustic"],
             feature_range=(0.01, 0.99),
         )
         for i in range(len(X["acoustic"]["test"]))
     ]
     Y_acoustic_test = [
-        scale(Y["acoustic"]["test"][i], Y_mean["train"], Y_scale["train"])
+        scale(Y["acoustic"]["test"][i], Y_mean["acoustic"], Y_scale["acoustic"])
         for i in range(len(Y["acoustic"]["test"]))
     ]
     test_mora_index_lists = [
