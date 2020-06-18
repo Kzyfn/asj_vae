@@ -176,12 +176,14 @@ def create_loader():
         else:
             train_mora_index_lists.append(mora_i)
 
-    X_acoustic_train = [X['acoustic']['train'][i] for i in range(len(X['acoustic']['train']))]
-    Y_acoustic_train = [Y['acoustic']['train'][i] for i in range(len(Y['acoustic']['train']))]
+    X_acoustic_train = [x, X_min['train'], X_max['train'], feature_range=(0.01, 0.99)) 
+        for x in X['acoustic']['train']]
+    Y_acoustic_train = [scale(y, Y_mean['train'], Y_scale['train']) for y in Y['acoustic']['train']]
     train_mora_index_lists = [train_mora_index_lists[i] for i in range(len(train_mora_index_lists))]
 
-    X_acoustic_test = [X['acoustic']['test'][i] for i in range(len(X['acoustic']['test']))]
-    Y_acoustic_test = [Y['acoustic']['test'][i] for i in range(len(Y['acoustic']['test']))]
+    X_acoustic_test = [x, X_min['train'], X_max['train'], feature_range=(0.01, 0.99)) 
+        for x in X['acoustic']['test']]
+    Y_acoustic_test = [scale(y, Y_mean['train'], Y_scale['train']) for y in Y['acoustic']['test']]
     test_mora_index_lists = [test_mora_index_lists[i] for i in range(len(test_mora_index_lists))]
 
     train_loader = [[X_acoustic_train[i], Y_acoustic_train[i], train_mora_index_lists[i]] for i in range(len(train_mora_index_lists))]
