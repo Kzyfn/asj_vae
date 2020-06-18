@@ -160,8 +160,7 @@ def create_loader(test=False):
 
     print(X["acoustic"]["train"])
     X_acoustic_train = [
-        minmax(x, X_min["train"], X_max["train"], feature_range=(0.01, 0.99))
-        for x in X["acoustic"]["train"]
+        X["acoustic"]["train"][i] for i in range(len(X["acoustic"]["train"]))
     ]
     Y_acoustic_train = [
         scale(y, Y_mean["train"], Y_scale["train"]) for y in Y["acoustic"]["train"]
