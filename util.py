@@ -19,6 +19,7 @@ lf0_start_idx = 180
 vuv_start_idx = 183
 bap_start_idx = 184
 
+device = 'cuda' if torch.cuda.is_available() else 'cpu'
 
 def parse():
     parser = argparse.ArgumentParser(description='LSTM VAE', )
