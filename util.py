@@ -73,6 +73,18 @@ def parse():
         '--num_class',
         type=int,
         default=1
+    ),
+    parser.add_argument(
+        '-q',
+        '--quantized',
+        type=bool,
+        default=False
+    ),
+    parser.add_argument(
+        '-nt',
+        '--num_trials',
+        type=int,
+        default=30
     )
 
     return parser.parse_args()
