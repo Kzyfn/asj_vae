@@ -1,12 +1,13 @@
 import numpy as np
 import argparse
 from glob import glob
-from models import BinaryFileSource
 from nnmnkwii.datasets import FileDataSource, FileSourceDataset
 from os.path import join
 from nnmnkwii.preprocessing import minmax, meanvar, minmax_scale, scale
 import torch
 
+from models import BinaryFileSource
+from loss_func import calc_lf0_rmse
 
 mgc_dim = 180#メルケプストラム次数　？？
 lf0_dim = 3#対数fo　？？ なんで次元が３？
