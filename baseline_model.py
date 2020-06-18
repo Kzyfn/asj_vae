@@ -31,7 +31,7 @@ import librosa.display
 
 
 
-DATA_ROOT = "./data/basic5000"#NIT-ATR503/"#
+DATA_ROOT = "../../disk/asj_vae/data/basic5000"#NIT-ATR503/"#
 test_size = 0.01 # This means 480 utterances for training data
 random_state = 1234
 
@@ -42,8 +42,8 @@ lf0_dim = 3#対数fo　？？ なんで次元が３？
 vuv_dim = 1#無声or 有声フラグ　？？
 bap_dim = 15#発話ごと非周期成分　？？
 
-duration_linguistic_dim = 438#question_jp.hed で、ラベルに対する言語特徴量をルールベースで記述してる
-acoustic_linguisic_dim = 442#上のやつ+frame_features とは？？
+duration_linguistic_dim = 531#question_jp.hed で、ラベルに対する言語特徴量をルールベースで記述してる
+acoustic_linguisic_dim = 535#上のやつ+frame_features とは？？
 duration_dim = 1
 acoustic_dim = mgc_dim + lf0_dim + vuv_dim + bap_dim #aoustice modelで求めたいもの
 
