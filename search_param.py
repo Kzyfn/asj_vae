@@ -5,12 +5,12 @@ from util import parse
 from vae import train_vae
 from vqvae import train_vqvae 
 
-
+args = parse()
 
 
 def objective(trial):
 
-    args = parse()
+    
 
     num_layers = trial.suggest_int('num_lstm_layers', 1)
     args.num_layers = num_layers
