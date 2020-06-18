@@ -66,7 +66,7 @@ class VAE(nn.Module):
             bidirectional=bidirectional,
             dropout=dropout,
         )
-        self.fc3 = nn.Linear(self.num_direction * 400, acoustic_dim)
+        self.fc3 = nn.Linear(self.num_direction * 400, 1)
 
     def encode(self, linguistic_f, acoustic_f, mora_index):
         x = torch.cat([linguistic_f, acoustic_f], dim=1)
@@ -151,7 +151,7 @@ class VQVAE(nn.Module):
             bidirectional=bidirectional,
             dropout=dropout,
         )
-        self.fc3 = nn.Linear(self.num_direction * 400, acoustic_dim)
+        self.fc3 = nn.Linear(self.num_direction * 400, 1)
 
     def choose_quantized_vector(self, x):
         with torch.no_grad():
