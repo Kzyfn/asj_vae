@@ -11,7 +11,7 @@ from models import VAE, BinaryFileSource
 from loss_func import calc_lf0_rmse, vae_loss
 from util import create_loader, train, test, parse
 
-device = 'cuda' if torch.cuda.is_availabel() else 'cpu'
+device = 'cuda' if torch.cuda.is_available() else 'cpu'
 
 def main(args, x_train, x_test, y_train, y_test, mora_i_train, mora_i_test):
     """
