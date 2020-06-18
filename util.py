@@ -30,11 +30,7 @@ def parse():
         "-ne", "--num_epoch", type=int, default=30,
     )
     parser.add_argument(
-        "-nl",
-        "--num_layers",
-        type=int,
-        # required=True,
-        default=1,
+        "-nl", "--num_layers", type=int, default=1,
     )
     parser.add_argument(
         "-zd", "--z_dim", type=int, default=1,
