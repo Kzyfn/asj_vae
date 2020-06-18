@@ -33,7 +33,7 @@ def main(args):
     loss_list = []
     test_loss_list = []
 
-    for epoch in range(1, args.num_epochs + 1):
+    for epoch in range(1, args['num_epochs'] + 1):
         loss = train(epoch, model, train_loader, vae_loss, optimizer)
         test_loss, f0_loss = test(epoch, model, test_loader, vae_loss)
 
