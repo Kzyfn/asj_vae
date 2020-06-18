@@ -47,7 +47,7 @@ def parse():
         default=1.0
     ),
     parser.add_argument(
-        '_nc',
+        '-nc',
         '--num_class',
         type=int,
         default=1
