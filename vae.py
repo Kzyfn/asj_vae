@@ -13,7 +13,7 @@ from util import create_loader, train, test, parse
 
 device = 'cuda' if torch.cuda.is_available() else 'cpu'
 
-def main(args):
+def train_vae(args):
     """
 
     """
@@ -63,7 +63,7 @@ if __name__ == '__main__':
     args = parse()
 
     
-    main(vars(args))
+    train_vae(vars(args))
 
 
 
