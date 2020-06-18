@@ -158,9 +158,8 @@ def create_loader(test=False):
         else:
             train_mora_index_lists.append(mora_i)
 
-    print(X["acoustic"]["train"])
     X_acoustic_train = [
-        minmax(
+        minmax_scale(
             X["acoustic"]["train"][i],
             X_min["acoustic"],
             X_max["acoustic"],
@@ -177,7 +176,7 @@ def create_loader(test=False):
     ]
 
     X_acoustic_test = [
-        minmax(
+        minmax_scale(
             X["acoustic"]["test"][i],
             X_min["acoustic"],
             X_max["acoustic"],
