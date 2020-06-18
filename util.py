@@ -4,6 +4,8 @@ from glob import glob
 from models import BinaryFileSource
 from nnmnkwii.datasets import FileDataSource, FileSourceDataset
 from os.path import join
+from nnmnkwii.preprocessing import minmax, meanvar, minmax_scale, scale
+
 mgc_dim = 180#メルケプストラム次数　？？
 lf0_dim = 3#対数fo　？？ なんで次元が３？
 vuv_dim = 1#無声or 有声フラグ　？？
