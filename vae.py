@@ -23,9 +23,10 @@ def main(args):
 
     optimizer = optim.Adam(model.parameters(), lr=2e-3)#1e-3
 
-    train_num = int(args['train_ratio']*len(mora_i_train))#1
+    
 
     train_loader, test_loader = create_loader()
+    train_num = int(args['train_ratio']*len(train_loader))#1
     train_loader = train_loader[:train_num]
 
 
