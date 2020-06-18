@@ -5,6 +5,7 @@ from nnmnkwii.datasets import FileDataSource, FileSourceDataset
 from os.path import join
 from nnmnkwii.preprocessing import minmax, meanvar, minmax_scale, scale
 import torch
+import torch.nn.functional as F
 
 from models import BinaryFileSource
 from loss_func import calc_lf0_rmse
@@ -87,7 +88,7 @@ def train(epoch, model, train_loader, loss_function, optimizer):
 
         optimizer.zero_grad()
         recon_batch, z_mu, z_unquantized_logvar = model(tmp[0], tmp[1], data[2])
-        loss = loss_function(recon_batch, tmp[1], z_mu, z_unquantized_logvar)
+        loss = loss_function(recon_batch, tmp[1][:, lf0_start_idx], z_mu, z_unquantized_logvar)
         loss.backward()
         train_loss += loss.item()
         optimizer.step()
@@ -110,11 +111,12 @@ def test(epoch, model, test_loader, loss_function):
                 tmp.append(torch.tensor(data[j]).to(device))
         
             recon_batch, z_mu, z_unquantized_logvar = model(tmp[0], tmp[1], data[2])
-            test_loss += loss_function(recon_batch, tmp[1], z_mu, z_unquantized_logvar).item()
-            f0_loss += calc_lf0_rmse(recon_batch.cpu().numpy().reshape(-1, 199), tmp[1].cpu().numpy().reshape(-1, 199), lf0_start_idx, vuv_start_idx)
+            test_loss += loss_function(recon_batch, tmp[1][:, lf0_start_idx], z_mu, z_unquantized_logvar).item()
+            f0_loss += np.sqrt(F.mse_loss(recon_batch.cpu().numpy().reshape(-1, 1), tmp[1].cpu().numpy().reshape(-1, 199)[:, lf0_start_idx]).item())
             del tmp
 
     test_loss /= len(test_loader)
+    f0_loss /= len(test_loader)
     print('====> Test set loss: {:.4f}'.format(test_loss / len(test_loader)))
     
     return test_loss, f0_loss
