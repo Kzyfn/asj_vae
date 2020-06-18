@@ -389,7 +389,7 @@ def test(epoch):
 
             recon_batch, mu, logvar = model(tmp[0], tmp[1], data[2])
             test_loss += np.sqrt(F.mse_loss(recon_batch, tmp[1].reshape(-1, 199)[:, lf0_start_idx:lf0_start_idx+3]).item())  * 1200 / np.log(2)
-            f0_loss = np.sqrt(F.mse_loss(recon_batch[:, 0], tmp[1].reshape(-1, 199)[:, lf0_start_idx]).item())* 1200 / np.log(2)
+            f0_loss = np.sqrt(F.mse_loss(recon_batch.view(-1, 3)[:, 0], tmp[1].reshape(-1, 199)[:, lf0_start_idx]).item())* 1200 / np.log(2)
             del tmp
 
     test_loss /= len(test_loader)
