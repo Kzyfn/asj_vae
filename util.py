@@ -3,6 +3,18 @@ import argparse
 from glob import glob
 from models import BinaryFileSource
 
+mgc_dim = 180#メルケプストラム次数　？？
+lf0_dim = 3#対数fo　？？ なんで次元が３？
+vuv_dim = 1#無声or 有声フラグ　？？
+bap_dim = 15#発話ごと非周期成分　？？
+acoustic_linguisic_dim = 442#上のやつ+frame_features とは？？
+acoustic_dim = mgc_dim + lf0_dim + vuv_dim + bap_dim #aoustice modelで求めたいもの
+mgc_start_idx = 0
+lf0_start_idx = 180
+vuv_start_idx = 183
+bap_start_idx = 184
+
+
 def parse():
     parser = argparse.ArgumentParser(description='LSTM VAE', )
     parser.add_argument(
