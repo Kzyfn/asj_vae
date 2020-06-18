@@ -5,6 +5,8 @@ from models import BinaryFileSource
 from nnmnkwii.datasets import FileDataSource, FileSourceDataset
 from os.path import join
 from nnmnkwii.preprocessing import minmax, meanvar, minmax_scale, scale
+import torch
+
 
 mgc_dim = 180#メルケプストラム次数　？？
 lf0_dim = 3#対数fo　？？ なんで次元が３？
