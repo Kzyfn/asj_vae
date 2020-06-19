@@ -127,7 +127,9 @@ class VQVAE(nn.Module):
             num_class, z_dim
         )  # torch.tensor([[i]*z_dim for i in range(nc)], requires_grad=True)
         # self.quantized_vectors.weight.data.uniform_(0, 1)
-        nn.init.normal_(self.quantized_vectors.weight, 0.0, 0.1)
+        self.quantized_vectors.weight = nn.init.normal_(
+            self.quantized_vectors.weight, 0.0, 0.1
+        )
 
         self.z_dim = z_dim
 
