@@ -20,7 +20,7 @@ def vae_loss(recon_x, x, mu, logvar):
     )  # F.binary_cross_entropy(recon_x.view(-1), x.view(-1, ), reduction='sum')
     KLD = -0.5 * torch.sum(1 + logvar - mu.pow(2) - logvar.exp())
     # print(KLD)l
-    return MSE + 0.01 * KLD
+    return MSE + KLD
 
 
 def vqvae_loss(recon_x, x, z, z_unquantized, beta=1):
