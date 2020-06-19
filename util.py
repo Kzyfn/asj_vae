@@ -39,7 +39,7 @@ def parse():
     parser.add_argument("-dr", "--dropout_ratio", type=float, default=0.3,),
     parser.add_argument("-mp", "--model_path", type=str, default="",),
     parser.add_argument("-tr", "--train_ratio", type=float, default=1.0),
-    parser.add_argument("-nc", "--num_class", type=int, default=1),
+    parser.add_argument("-nc", "--num_class", type=int, default=2),
     parser.add_argument("-q", "--quantized", type=bool, default=False),
     parser.add_argument("-nt", "--num_trials", type=int, default=30)
 
