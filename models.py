@@ -127,7 +127,7 @@ class VQVAE(nn.Module):
             num_class, z_dim
         )  # torch.tensor([[i]*z_dim for i in range(nc)], requires_grad=True)
         # self.quantized_vectors.weight.data.uniform_(0, 1)
-        nn.init.normal_(self.quantized_vectors.weight, 0.0, 1.0)
+        nn.init.normal_(self.quantized_vectors.weight, 0.0, 0.1)
 
         self.z_dim = z_dim
 
@@ -183,7 +183,7 @@ class VQVAE(nn.Module):
 
         h1 = F.relu(out)
 
-        return (self.fc2(h1),)
+        return self.fc2(h1)
 
     def decode(self, z, linguistic_features, mora_index):
 
@@ -213,6 +213,7 @@ class VQVAE(nn.Module):
         z_not_quantized = self.encode(
             linguistic_features, acoustic_features, mora_index
         )
+        print(z_not_quantized)
         z = self.quantize_z(z_not_quantized)
 
         return self.decode(z, linguistic_features, mora_index), z, z_not_quantized[0]
