@@ -95,7 +95,7 @@ def test(epoch, model, test_loader, loss_function):
             del tmp
 
     test_loss /= len(test_loader)
-    f0_loss /= len(test_loader)
+    f0_loss * 1200 / np.log(2)
     print("====> Test set loss: {:.4f}".format(test_loss))
 
     return test_loss, f0_loss
@@ -163,10 +163,8 @@ def create_loader(test=False):
         )
         for i in range(len(X["acoustic"]["train"]))
     ]
-    Y_acoustic_train = [
-        scale(Y["acoustic"]["train"][i], Y_mean["acoustic"], Y_scale["acoustic"])
-        for i in range(len(Y["acoustic"]["train"]))
-    ]
+    Y_acoustic_train = [y for y in Y["acoustic"]["train"]]
+    # Y_acoustic_train = [scale(Y["acoustic"]["train"][i], Y_mean["acoustic"], Y_scale["acoustic"]) for i in range(len(Y["acoustic"]["train"]))]
     train_mora_index_lists = [
         train_mora_index_lists[i] for i in range(len(train_mora_index_lists))
     ]
@@ -180,10 +178,8 @@ def create_loader(test=False):
         )
         for i in range(len(X["acoustic"]["test"]))
     ]
-    Y_acoustic_test = [
-        scale(Y["acoustic"]["test"][i], Y_mean["acoustic"], Y_scale["acoustic"])
-        for i in range(len(Y["acoustic"]["test"]))
-    ]
+    Y_acoustic_test = [y for y in Y["acoustic"]["test"]]
+    # Y_acoustic_test = [scale(Y["acoustic"]["test"][i], Y_mean["acoustic"], Y_scale["acoustic"])for i in range(len(Y["acoustic"]["test"]))]
     test_mora_index_lists = [
         test_mora_index_lists[i] for i in range(len(test_mora_index_lists))
     ]

@@ -18,6 +18,9 @@ def objective(trial):
     z_dim = trial.suggest_categorical("z_dim", [1, 2, 16])
     args.z_dim = z_dim
 
+    if args.output_dir.find("/") >= 0:
+        args.output_dir = args.output_dir[: args.output_dir.index("/")]
+
     if args.quantized:
         num_class = trial.suggest_int("num_class", 2, 4)
         args.num_class = num_class
