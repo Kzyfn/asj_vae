@@ -97,6 +97,7 @@ def test(epoch, model, test_loader, loss_function):
     test_loss /= len(test_loader)
     f0_loss /= len(test_loader)
     f0_loss = f0_loss * 1200 / np.log(2)
+    print("f0_loss")
     print(f0_loss)
     print("====> Test set loss: {:.4f}".format(test_loss))
 
