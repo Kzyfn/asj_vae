@@ -89,13 +89,15 @@ def test(epoch, model, test_loader, loss_function):
                 recon_batch, tmp[1][:, lf0_start_idx], z_mu, z_unquantized_logvar
             ).item()
             f0_loss += rmse(
-                recon_batch.cpu().numpy().reshape(-1, 1),
-                tmp[1].cpu().numpy().reshape(-1, 199)[:, lf0_start_idx],
+                recon_batch.cpu().numpy().reshape(-1),
+                tmp[1].cpu().numpy()[:, lf0_start_idx].reshape(-1),
             )
             del tmp
 
     test_loss /= len(test_loader)
-    f0_loss * 1200 / np.log(2)
+    f0_loss /= len(test_loader)
+    f0_loss = f0_loss * 1200 / np.log(2)
+    print(f0_loss)
     print("====> Test set loss: {:.4f}".format(test_loss))
 
     return test_loss, f0_loss
