@@ -167,10 +167,13 @@ class VQVAE(nn.Module):
 
     def quantize_z(self, z_unquantized):
         z = torch.zeros(z_unquantized[0].size(), requires_grad=True).to(device)
-
+        print(z)
+        print(z.size())
         for i in range(z_unquantized[0].size()[0]):
             z[i] = self.choose_quantized_vector(z_unquantized[0][i].reshape(-1))
 
+        print(z)
+        print(z_size())
         return z
 
     def encode(self, linguistic_f, acoustic_f, mora_index):
