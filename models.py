@@ -190,7 +190,7 @@ class VQVAE(nn.Module):
 
         h1 = F.relu(out)
 
-        return self.fc2(h1)
+        return F.relu(self.fc2(h1))
 
     def decode(self, z, linguistic_features, mora_index):
 
