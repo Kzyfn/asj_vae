@@ -109,7 +109,9 @@ class VAE(nn.Module):
 
         return self.fc3(h3)  # torch.sigmoid(self.fc3(h3))
 
-    def forward(self, linguistic_features, acoustic_features, mora_index, epoch):
+    def forward(
+        self, linguistic_features, acoustic_features, mora_index, epoch
+    ):  # epochはVQVAEと合わせるため
         mu, logvar = self.encode(linguistic_features, acoustic_features, mora_index)
         z = self.reparameterize(mu, logvar)
 
@@ -129,7 +131,7 @@ class VQVAE(nn.Module):
         )  # torch.tensor([[i]*z_dim for i in range(nc)], requires_grad=True)
         # self.quantized_vectors.weight.data.uniform_(0, 1)
         self.quantized_vectors.weight = nn.init.normal_(
-            self.quantized_vectors.weight, 0.1, 0.0001
+            self.quantized_vectors.weight, 0.1, 0.001
         )
 
         self.z_dim = z_dim
