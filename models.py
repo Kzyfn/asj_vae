@@ -219,7 +219,7 @@ class VQVAE(nn.Module):
         z_not_quantized = self.encode(
             linguistic_features, acoustic_features, mora_index
         )
-        print(z_not_quantized)
+        # print(z_not_quantized)
         z = self.quantize_z(z_not_quantized)
 
         return self.decode(z, linguistic_features, mora_index), z, z_not_quantized
