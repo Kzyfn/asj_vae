@@ -172,7 +172,7 @@ class VQVAE(nn.Module):
         print("z_zeros")
         print(z)
         print(z.size())
-        for i in range(z_unquantized[0].size()[0]):
+        for i in range(z_unquantized.size()[0]):
             z[i] = self.choose_quantized_vector(z_unquantized[0][i].reshape(-1))
 
         print("z_quantized")
