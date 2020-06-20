@@ -166,14 +166,14 @@ class VQVAE(nn.Module):
         return self.quantized_vectors.weight[min_index]
 
     def quantize_z(self, z_unquantized):
-        z = torch.zeros(z_unquantized[0].size(), requires_grad=True).to(device)
+        z = torch.zeros(z_unquantized.size(), requires_grad=True).to(device)
         print("weight")
         print(self.quantized_vectors.weight)
         print("z_zeros")
         print(z)
         print(z.size())
         for i in range(z_unquantized.size()[0]):
-            z[i] = self.choose_quantized_vector(z_unquantized[0][i].reshape(-1))
+            z[i] = self.choose_quantized_vector(z_unquantized[i].reshape(-1))
 
         print("z_quantized")
         print(z)
@@ -225,7 +225,7 @@ class VQVAE(nn.Module):
         print(z_not_quantized)
         z = self.quantize_z(z_not_quantized)
 
-        return self.decode(z, linguistic_features, mora_index), z, z_not_quantized[0]
+        return self.decode(z, linguistic_features, mora_index), z, z_not_quantized
 
 
 class BinaryFileSource(FileDataSource):
