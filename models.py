@@ -161,6 +161,8 @@ class VQVAE(nn.Module):
     def choose_quantized_vector(self, x):
         with torch.no_grad():
             error = torch.sum((self.quantized_vectors.weight - x) ** 2, dim=1)
+            print(error)
+            print(error.size())
             min_index = torch.argmin(error).item()
 
         return self.quantized_vectors.weight[min_index]
