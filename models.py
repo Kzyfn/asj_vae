@@ -123,6 +123,7 @@ class VQVAE(nn.Module):
         super(VQVAE, self).__init__()
         self.num_layers = num_layers
         self.num_direction = 2 if bidirectional else 1
+        self.num_class = num_class
         self.quantized_vectors = nn.Embedding(
             num_class, z_dim
         )  # torch.tensor([[i]*z_dim for i in range(nc)], requires_grad=True)
@@ -158,19 +159,22 @@ class VQVAE(nn.Module):
         )
         self.fc3 = nn.Linear(self.num_direction * 400, 1)
 
-    def choose_quantized_vector(self, x):
-        with torch.no_grad():
-            error = torch.sum((self.quantized_vectors.weight - x) ** 2, dim=1)
-            min_index = torch.argmin(error).item()
+    def choose_quantized_vector(self, x, epoch):
+        if epoch >= 2:
+            with torch.no_grad():
+                error = torch.sum((self.quantized_vectors.weight - x) ** 2, dim=1)
+                min_index = torch.argmin(error).item()
+        else:
+            min_index = random.choice(list(range(self.num_class)))
 
         return self.quantized_vectors.weight[min_index]
 
-    def quantize_z(self, z_unquantized):
+    def quantize_z(self, z_unquantized, epoch):
         z = torch.zeros(z_unquantized.size(), requires_grad=True).to(device)
         print("weight")
         print(self.quantized_vectors.weight)
         for i in range(z_unquantized.size()[0]):
-            z[i] = self.choose_quantized_vector(z_unquantized[i].reshape(-1))
+            z[i] = self.choose_quantized_vector(z_unquantized[i].reshape(-1), epoch)
         print("z_unquantized")
         print(z_unquantized)
         print("z_quantized")
@@ -216,12 +220,12 @@ class VQVAE(nn.Module):
 
         return self.fc3(h3)  # torch.sigmoid(self.fc3(h3))
 
-    def forward(self, linguistic_features, acoustic_features, mora_index):
+    def forward(self, linguistic_features, acoustic_features, mora_index, epoch):
         z_not_quantized = self.encode(
             linguistic_features, acoustic_features, mora_index
         )
         # print(z_not_quantized)
-        z = self.quantize_z(z_not_quantized)
+        z = self.quantize_z(z_not_quantized, epoch)
 
         return self.decode(z, linguistic_features, mora_index), z, z_not_quantized
 
