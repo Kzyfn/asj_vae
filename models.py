@@ -8,7 +8,7 @@ from nnmnkwii.datasets import FileDataSource, FileSourceDataset
 from os.path import join, expanduser, basename, splitext, basename, exists
 import os
 from glob import glob
-
+import random
 
 mgc_dim = 180  # メルケプストラム次数　？？
 lf0_dim = 3  # 対数fo　？？ なんで次元が３？
