@@ -169,9 +169,6 @@ class VQVAE(nn.Module):
         z = torch.zeros(z_unquantized.size(), requires_grad=True).to(device)
         print("weight")
         print(self.quantized_vectors.weight)
-        print("z_zeros")
-        print(z)
-        print(z.size())
         for i in range(z_unquantized.size()[0]):
             z[i] = self.choose_quantized_vector(z_unquantized[i].reshape(-1))
 
