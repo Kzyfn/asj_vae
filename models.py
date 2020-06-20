@@ -109,7 +109,7 @@ class VAE(nn.Module):
 
         return self.fc3(h3)  # torch.sigmoid(self.fc3(h3))
 
-    def forward(self, linguistic_features, acoustic_features, mora_index):
+    def forward(self, linguistic_features, acoustic_features, mora_index, epoch):
         mu, logvar = self.encode(linguistic_features, acoustic_features, mora_index)
         z = self.reparameterize(mu, logvar)
 
