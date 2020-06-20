@@ -55,7 +55,7 @@ def train(epoch, model, train_loader, loss_function, optimizer):
             tmp.append(torch.from_numpy(data[j]).to(device))
 
         optimizer.zero_grad()
-        recon_batch, z_mu, z_unquantized_logvar = model(tmp[0], tmp[1], data[2])
+        recon_batch, z_mu, z_unquantized_logvar = model(tmp[0], tmp[1], data[2], epoch)
         loss = loss_function(
             recon_batch, tmp[1][:, lf0_start_idx], z_mu, z_unquantized_logvar
         )
@@ -84,7 +84,7 @@ def test(epoch, model, test_loader, loss_function):
             for j in range(2):
                 tmp.append(torch.tensor(data[j]).to(device))
 
-            recon_batch, z_mu, z_unquantized_logvar = model(tmp[0], tmp[1], data[2])
+            recon_batch, z_mu, z_unquantized_logvar = model(tmp[0], tmp[1], data[2], 5)
             test_loss += loss_function(
                 recon_batch, tmp[1][:, lf0_start_idx], z_mu, z_unquantized_logvar
             ).item()
