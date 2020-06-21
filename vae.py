@@ -14,7 +14,7 @@ from util import create_loader, train, test, parse
 device = "cuda" if torch.cuda.is_available() else "cpu"
 
 
-def train_vae(args, trial=None), test_ratio=1:
+def train_vae(args, trial=None, test_ratio=1):
     """
 
     """
