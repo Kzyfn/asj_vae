@@ -30,14 +30,16 @@ def train_vae(args, trial=None, test_ratio=1):
     test_num = int(test_ratio * len(test_loader))
     train_loader = train_loader[:train_num]
     test_loader = test_loader[:test_num]
-
     loss_list = []
     test_loss_list = []
     f0_loss_list = []
+    f0_loss_trainlist = []
     start = time.time()
 
     for epoch in range(1, args["num_epoch"] + 1):
-        loss = train(epoch, model, train_loader, vae_loss, optimizer)
+        loss, f0_loss_train = train(
+            epoch, model, train_loader, vae_loss, optimizer, f0=True
+        )
         test_loss, f0_loss = test(epoch, model, test_loader, vae_loss)
 
         print(
@@ -48,6 +50,7 @@ def train_vae(args, trial=None, test_ratio=1):
 
         # logging
         loss_list.append(loss)
+        f0_loss_trainlist.append(f0_loss_train)
         test_loss_list.append(test_loss)
         f0_loss_list.append(f0_loss)
 
@@ -66,6 +69,7 @@ def train_vae(args, trial=None, test_ratio=1):
                 args["output_dir"] + "/vae_model_{}.pth".format(epoch),
             )
         np.save(args["output_dir"] + "/loss_list.npy", np.array(loss_list))
+        np.save(args["output_dir"] + "/f0loss_list.npy", np.array(f0_loss_trainlist))
         np.save(args["output_dir"] + "/test_loss_list.npy", np.array(test_loss_list))
         np.save(args["output_dir"] + "/test_f0loss_list.npy", np.array(f0_loss_list))
 
