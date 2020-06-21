@@ -12,10 +12,10 @@ args = parse()
 
 def objective(trial):
 
-    num_layers = trial.suggest_int("num_lstm_layers", 1, 3)
+    num_layers = trial.suggest_int("num_lstm_layers", 1, 2)
     args.num_layers = num_layers
 
-    z_dim = trial.suggest_categorical("z_dim", [1, 2, 16])
+    z_dim = trial.suggest_categorical("z_dim", [1, 2, 8])
     args.z_dim = z_dim
 
     if args.output_dir.find("/") >= 0:
