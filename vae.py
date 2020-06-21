@@ -14,7 +14,7 @@ from util import create_loader, train, test, parse
 device = "cuda" if torch.cuda.is_available() else "cpu"
 
 
-def train_vae(args, trial=None):
+def train_vae(args, trial=None), test_ratio=1:
     """
 
     """
@@ -26,7 +26,9 @@ def train_vae(args, trial=None):
 
     train_loader, test_loader = create_loader()
     train_num = int(args["train_ratio"] * len(train_loader))  # 1
+    test_num = int(test_ratio * len(test_loader))
     train_loader = train_loader[:train_num]
+    test_loader = test_loader[:test_num]
 
     loss_list = []
     test_loss_list = []
@@ -72,5 +74,5 @@ def train_vae(args, trial=None):
 if __name__ == "__main__":
     args = parse()
 
-    train_vae(vars(args))
+    train_vae(vars(args), test_ratio=0.1)
 
