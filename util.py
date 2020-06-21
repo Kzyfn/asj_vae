@@ -46,9 +46,10 @@ def parse():
     return parser.parse_args()
 
 
-def train(epoch, model, train_loader, loss_function, optimizer):
+def train(epoch, model, train_loader, loss_function, optimizer, f0=False):
     model.train()
     train_loss = 0
+    f0_loss = 0
     for batch_idx, data in enumerate(train_loader):
         tmp = []
         for j in range(2):
@@ -61,6 +62,12 @@ def train(epoch, model, train_loader, loss_function, optimizer):
         )
         loss.backward()
         train_loss += loss.item()
+        if f0:
+            with torch.no_grad():
+                f0_loss += += rmse(
+                recon_batch.detach().cpu().numpy().reshape(-1),
+                tmp[1].detach().cpu().numpy()[:, lf0_start_idx].reshape(-1),
+            )
         optimizer.step()
         del tmp
 
@@ -70,6 +77,10 @@ def train(epoch, model, train_loader, loss_function, optimizer):
         )
     )
 
+    if f0:
+        f0_loss /= len(train_loader)
+        f0_loss = f0_loss * 1200 / np.log(2)
+        return train_loss / len(train_loader), f0_loss
     return train_loss / len(train_loader)
 
 
