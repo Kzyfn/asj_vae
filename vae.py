@@ -73,6 +73,6 @@ def train_vae(args, trial=None, test_ratio=1):
 
 if __name__ == "__main__":
     args = parse()
-
+    os.makedirs(args.output_dir, exist_ok=True)
     train_vae(vars(args), test_ratio=0.1)
 

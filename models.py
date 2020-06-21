@@ -232,6 +232,30 @@ class VQVAE(nn.Module):
         return self.decode(z, linguistic_features, mora_index), z, z_not_quantized
 
 
+class Rnn(nn.Module):
+    def __init__(self, bidirectional=True, num_layers=1):
+        super(Rnn, self).__init__()
+        self.num_layers = num_layers
+        self.num_direction = 2 if bidirectional else 1
+        ##ここまでエンコーダ
+
+        self.lstm2 = nn.LSTM(
+            acoustic_linguisic_dim, 400, num_layers, bidirectional=bidirectional
+        )
+        self.fc3 = nn.Linear(self.num_direction * 400, acoustic_dim)
+
+    def decode(self, linguistic_features):
+        x = linguistic_features.view(linguistic_features.size()[0], 1, -1)
+        h3, (h, c) = self.lstm2(x)
+        h3 = F.relu(h3)
+
+        return self.fc3(h3)  # torch.sigmoid(self.fc3(h3))
+
+    def forward(self, linguistic_features):
+
+        return self.decode(linguistic_features)
+
+
 class BinaryFileSource(FileDataSource):
     def __init__(self, data_root, dim, train):
         self.data_root = data_root

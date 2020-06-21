@@ -71,5 +71,6 @@ def train_vqvae(args, trial=None):
 
 if __name__ == "__main__":
     args = parse()
-    train_vqvae(vars(args))
+    os.makedirs(args.output_dir, exist_ok=True)
+    train_vqvae(vars(args), test_ratio=0.1)
 

@@ -146,10 +146,14 @@ def create_loader(test=False):
 
     train_mora_index_lists = []
     test_mora_index_lists = []
+    test_not_valid = []
 
     for i, mora_i in enumerate(mora_index_lists_for_model):
         if (i - 1) % 20 == 0:  # test
-            pass
+            if test:
+                test_not_valid.append(i)
+            else:
+                pass
         elif i % 20 == 0:  # valid
             test_mora_index_lists.append(mora_i)
         else:
@@ -193,5 +197,8 @@ def create_loader(test=False):
         [X_acoustic_test[i], Y_acoustic_test[i], test_mora_index_lists[i]]
         for i in range(len(test_mora_index_lists))
     ]
-
-    return train_loader, test_loader
+    
+    if test:
+        return train_loader, test_loader, test_not_valid_loader
+    else:
+        return train_loader, test_loader
