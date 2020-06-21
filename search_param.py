@@ -16,13 +16,13 @@ def objective(trial):
     args.num_layers = num_layers
 
     z_dim = trial.suggest_categorical("z_dim", [1, 2, 16])
-    args.z_dim = 4  # z_dim
+    args.z_dim = z_dim
 
     if args.output_dir.find("/") >= 0:
         args.output_dir = args.output_dir[: args.output_dir.index("/")]
 
     if args.quantized:
-        num_class = 4  # trial.suggest_int("num_class", 2, 4)
+        num_class = trial.suggest_int("num_class", 2, 4)
         args.num_class = num_class
         output_dir_path = join(
             args.output_dir, "{}layers_zdim{}_nc{}".format(num_layers, z_dim, num_class)
