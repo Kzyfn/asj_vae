@@ -6,6 +6,7 @@ import time
 import numpy as np
 from tqdm import tnrange, tqdm
 import optuna
+import os
 
 from models import VAE, BinaryFileSource
 from loss_func import calc_lf0_rmse, vae_loss
