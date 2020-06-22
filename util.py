@@ -57,9 +57,7 @@ def train(epoch, model, train_loader, loss_function, optimizer, f0=False):
 
         optimizer.zero_grad()
         recon_batch, z_mu, z_unquantized_logvar = model(tmp[0], tmp[1], data[2], epoch)
-        loss = loss_function(
-            recon_batch, tmp[1], z_mu, z_unquantized_logvar
-        )
+        loss = loss_function(recon_batch, tmp[1], z_mu, z_unquantized_logvar)
         loss.backward()
         train_loss += loss.item()
         if f0:
@@ -113,7 +111,7 @@ def test(epoch, model, test_loader, loss_function):
     return test_loss, f0_loss
 
 
-def create_loader(test=False, batch_size=1:int):
+def create_loader(test=False, batch_size=1):
     DATA_ROOT = "./data/basic5000"
     X = {"acoustic": {}}
     Y = {"acoustic": {}}
