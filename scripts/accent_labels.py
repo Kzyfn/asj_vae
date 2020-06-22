@@ -75,7 +75,7 @@ from nnmnkwii.io import hts
 from tqdm import tqdm
 
 paths = sorted(glob(join("../data/basic5000", "label_phone_align", "*.lab")))
-os.makedirs("../data/basic5000/accemts")
+# os.makedirs("../data/basic5000/accents")
 
 for i, filepath in tqdm(enumerate(paths)):
     label = hts.load(filepath)
