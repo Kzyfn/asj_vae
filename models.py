@@ -164,10 +164,10 @@ class VQVAE(nn.Module):
         )
         self.fc3 = nn.Linear(self.num_direction * 400, acoustic_dim)
 
-    def choose_quantized_vector(self, x, epoch):
+    def choose_quantized_vector(self, z, epoch):  # zはエンコーダの出力
         if epoch >= 1:
             with torch.no_grad():
-                error = torch.sum((self.quantized_vectors.weight - x) ** 2, dim=1)
+                error = torch.sum((self.quantized_vectors.weight - z) ** 2, dim=1)
                 min_index = torch.argmin(error).item()
         else:
             min_index = random.choice(list(range(self.num_class)))
@@ -176,15 +176,10 @@ class VQVAE(nn.Module):
 
     def quantize_z(self, z_unquantized, epoch):
         z = torch.zeros(z_unquantized.size(), requires_grad=True).to(device)
-        # print("weight")
-        # print(self.quantized_vectors.weight)
+
         for i in range(z_unquantized.size()[0]):
             z[i] = self.choose_quantized_vector(z_unquantized[i].reshape(-1), epoch)
-        # print("z_unquantized")
-        # print(z_unquantized)
-        # print("z_quantized")
-        # print(z)
-        # print(z.size())
+
         return z
 
     def encode(self, linguistic_f, acoustic_f, mora_index):
@@ -236,14 +231,23 @@ class VQVAE(nn.Module):
 
 
 class Rnn(nn.Module):
-    def __init__(self, bidirectional=True, num_layers=1):
+    def __init__(
+        self, bidirectional=True, num_layers=1, accent_label_type=0
+    ):  # accent_label_type: 0;なし, 1; 92次元, 2; H/Lラベル
         super(Rnn, self).__init__()
         self.num_layers = num_layers
         self.num_direction = 2 if bidirectional else 1
         ##ここまでエンコーダ
 
+        if accent_type == 0:
+            acoustic_linguisic_dim_ = acoustic_linguisic_dim
+        elif accent_type == 2:
+            acoustic_linguisic_dim_ = acoustic_linguisic_dim + 1
+        else:
+            acoustic_linguisic_dim_ = 535
+
         self.lstm2 = nn.LSTM(
-            acoustic_linguisic_dim, 400, num_layers, bidirectional=bidirectional
+            acoustic_linguisic_dim_, 400, num_layers, bidirectional=bidirectional
         )
         self.fc3 = nn.Linear(self.num_direction * 400, acoustic_dim)
 
