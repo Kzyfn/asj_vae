@@ -240,11 +240,10 @@ def train(epoch):
         for j, mora_i in enumerate(train_mora_index_lists[i]):
             prev_index = 0 if j == 0 else j - 1
             h_l_label_tensor[prev_index : int(mora_i)] = tmp[2][j]
-
+        x = torch.cat([tmp[0].float(), h_l_label_tensor.float().view(-1, 1)], dim=1)
+        print(x.size())
         optimizer.zero_grad()
-        recon_batch = model(
-            torch.cat([tmp[0].float(), h_l_label_tensor.float().view(-1, 1)], dim=1)
-        )
+        recon_batch = model(x)
         loss = loss_function(recon_batch, tmp[1])
         loss.backward()
         train_loss += loss.item()
