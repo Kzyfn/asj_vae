@@ -63,7 +63,10 @@ def train(epoch, model, train_loader, loss_function, optimizer, f0=False):
         if f0:
             with torch.no_grad():
                 f0_loss += rmse(
-                    recon_batch.detach().cpu().numpy().reshape(-1),
+                    recon_batch.detach()
+                    .cpu()
+                    .numpy()
+                    .reshape(-1, 199)[:, lf0_start_idx],
                     tmp[1].detach().cpu().numpy()[:, lf0_start_idx].reshape(-1),
                 )
         optimizer.step()
@@ -98,7 +101,7 @@ def test(epoch, model, test_loader, loss_function):
                 recon_batch, tmp[1], z_mu, z_unquantized_logvar
             ).item()
             f0_loss += rmse(
-                recon_batch.cpu().numpy().reshape(-1),
+                recon_batch.cpu().numpy().reshape(-1, 199)[:, lf0_start_idx],
                 tmp[1].cpu().numpy()[:, lf0_start_idx].reshape(-1),
             )
             del tmp
