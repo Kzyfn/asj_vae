@@ -211,6 +211,22 @@ test_loader = [
     [x, y, l_h_label]
     for x, y, l_h_label in zip(X_acoustic_test, Y_acoustic_test, h_l_labels_test)
 ]
+mora_index_lists = sorted(glob(join("data/basic5000/mora_index", "squeezed_*.csv")))
+mora_index_lists_for_model = [np.loadtxt(path).reshape(-1) for path in mora_index_lists]
+train_mora_index_lists = []
+test_mora_index_lists = []
+test_not_valid = []
+
+for i, mora_i in enumerate(mora_index_lists_for_model):
+    if (i - 1) % 20 == 0:  # test
+        if test:
+            test_not_valid.append(i)
+        else:
+            pass
+    elif i % 20 == 0:  # valid
+        test_mora_index_lists.append(mora_i)
+    else:
+        train_mora_index_lists.append(mora_i)
 
 
 def train(epoch):
@@ -222,9 +238,15 @@ def train(epoch):
         for j in range(3):
             tmp.append(torch.from_numpy(data[j]).to(device))
 
+        h_l_label_tensor = torch.tensor([0] * data[0].shape[0])
+
+        for j, mora_i in enumerate(train_mora_index_lists):
+            prev_index = 0 if j == 0 else j - 1
+            h_l_label_tensor[prev_index : int(mora_i)] = tmp[2][j]
+
         optimizer.zero_grad()
         recon_batch = model(
-            torch.cat([tmp[0].float(), tmp[2].float().view(-1, 1)], dim=1)
+            torch.cat([tmp[0].float(), h_l_label_tensor.float().view(-1, 1)], dim=1)
         )
         loss = loss_function(recon_batch, tmp[1])
         loss.backward()
@@ -260,6 +282,11 @@ def test(epoch):
 
             for j in range(3):
                 tmp.append(torch.tensor(data[j]).to(device))
+
+            h_l_label_tensor = torch.tensor([0] * data[0].shape[0])
+            for j, mora_i in enumerate(test_mora_index_lists):
+                prev_index = 0 if j == 0 else j - 1
+                h_l_label_tensor[prev_index : int(mora_i)] = tmp[2][j]
 
             recon_batch = model(
                 torch.cat([tmp[0].float(), tmp[2].float().view(-1, 1)], dim=1)
