@@ -223,7 +223,7 @@ def train(epoch):
             tmp.append(torch.from_numpy(data[j]).to(device))
 
         optimizer.zero_grad()
-        recon_batch = model(torch.cat([tmp[0], tmp[2]], dim=1))
+        recon_batch = model(torch.cat([tmp[0].float(), tmp[2].float()], dim=1))
         loss = loss_function(recon_batch, tmp[1])
         loss.backward()
         train_loss += loss.item()
@@ -259,7 +259,7 @@ def test(epoch):
             for j in range(3):
                 tmp.append(torch.tensor(data[j]).to(device))
 
-            recon_batch = model(torch.cat([tmp[0], tmp[2]], dim=1))
+            recon_batch = model(torch.cat([tmp[0].float(), tmp[2].float()], dim=1))
             test_loss += loss_function(recon_batch, tmp[1]).item()
 
             del tmp
