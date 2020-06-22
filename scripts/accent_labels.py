@@ -89,7 +89,10 @@ for i, filepath in tqdm(enumerate(paths)):
             accents.append(accent)
 
     np.savetxt(
-        "..data/basic5000/accents/accents_" + "0" * (4 - len(str(i))) + str(i) + ".csv",
+        "../data/basic5000/accents/accents_"
+        + "0" * (4 - len(str(i + 1)))
+        + str(i + 1)
+        + ".csv",
         accents,
     )
 
