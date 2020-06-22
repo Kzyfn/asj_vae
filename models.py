@@ -68,7 +68,7 @@ class VAE(nn.Module):
             dropout=dropout,
             batch_first=True,
         )
-        self.fc3 = nn.Linear(self.num_direction * 400, 1)
+        self.fc3 = nn.Linear(self.num_direction * 400, acoustic_dim)
 
     def encode(self, linguistic_f, acoustic_f, mora_index, batch_size=1):
         x = torch.cat([linguistic_f, acoustic_f], dim=1)
