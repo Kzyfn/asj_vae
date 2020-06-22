@@ -252,7 +252,11 @@ def train(epoch):
         if i % 4945 == 0:
             print(
                 "Train Epoch: {} [{}/{} ({:.0f}%)]\tLoss: {:.6f}".format(
-                    epoch, i, train_num, 100.0 * i / train_num, loss.item(),
+                    epoch,
+                    i,
+                    len(train_loader),
+                    100.0 * i / len(train_loader),
+                    loss.item(),
                 )
             )
 
