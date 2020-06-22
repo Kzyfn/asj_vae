@@ -12,7 +12,7 @@ args = parse()
 
 def objective(trial):
 
-    num_layers = trial.suggest_int("num_lstm_layers", 1, 2)
+    num_layers = 2  # trial.suggest_int("num_lstm_layers", 1, 2)
     args.num_layers = num_layers
 
     z_dim = trial.suggest_categorical("z_dim", [1, 2, 8])
@@ -22,7 +22,7 @@ def objective(trial):
         args.output_dir = args.output_dir[: args.output_dir.index("/")]
 
     if args.quantized:
-        num_class = trial.suggest_int("num_class", 2, 4)
+        num_class = trial.suggest_int("num_class", 2)  # , 4)
         args.num_class = num_class
         output_dir_path = join(
             args.output_dir, "{}layers_zdim{}_nc{}".format(num_layers, z_dim, num_class)
