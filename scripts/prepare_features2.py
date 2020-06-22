@@ -227,7 +227,7 @@ if __name__ == "__main__":
         print("Features for duration model training found, skipping feature extraction.")
 
     # Save features for acoustic model
-    if True:#not skip_acoustic_feature_extraction:
+    if not skip_acoustic_feature_extraction:
         print("Acoustic linguistic feature dim", X_acoustic[0].shape)
         print("Acoustic feature dim", Y_acoustic[0].shape)
         for idx, (x, y) in tqdm(enumerate(zip(X_acoustic, Y_acoustic))):

@@ -27,7 +27,7 @@ def a1_a2_f2_extractor(str_label):
     index_mora = str_label.index("-")
     mora_str = str_label[index_mora + 1 : str_label.index("+")]
 
-    if mora_str not in ["a", "i", "u", "e", "o", "A", "I", "U", "E", "O", "N", "cli"]:
+    if mora_str not in ["a", "i", "u", "e", "o", "A", "I", "U", "E", "O", "N", "cl"]:
         return None
 
     index_a = str_label.index("/A:")
