@@ -216,8 +216,8 @@ def train(epoch):
                 "Train Epoch: {} [{}/{} ({:.0f}%)]\tLoss: {:.6f}".format(
                     epoch,
                     batch_idx,
-                    train_num,
-                    100.0 * batch_idx / train_num,
+                    len(train_loader),
+                    100.0 * batch_idx / len(train_loader),
                     loss.item(),
                 )
             )
