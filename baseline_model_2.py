@@ -182,18 +182,13 @@ X_acoustic_train = [
     for x in X["acoustic"]["train"]
 ]
 Y_acoustic_train = [y for y in Y["acoustic"]["train"]]
-train_mora_index_lists = [
-    train_mora_index_lists[i] for i in range(len(train_mora_index_lists))
-]
+
 
 X_acoustic_test = [
     minmax_scale(x, X_min["acoustic"], X_max["acoustic"], feature_range=(0.01, 0.99))
     for x in X["acoustic"]["test"]
 ]
 Y_acoustic_test = [y for y in Y["acoustic"]["test"]]
-test_mora_index_lists = [
-    test_mora_index_lists[i] for i in range(len(test_mora_index_lists))
-]
 
 
 def train(epoch):
@@ -235,6 +230,7 @@ def train(epoch):
 def test(epoch):
     model.eval()
     test_loss = 0
+    f0_loss = 0
     with torch.no_grad():
         for i, data, in enumerate(test_loader):
             tmp = []
@@ -244,26 +240,27 @@ def test(epoch):
 
             recon_batch = model(tmp[0])
             test_loss += loss_function(recon_batch, tmp[1]).item()
-
+            f0_loss += F.mse_loss(
+                recon_batch[:, :, lf0_start_idx], tmp[1][:, lf0_start_idx]
+            ).item()
             del tmp
 
     test_loss /= len(test_loader)
     print("====> Test set loss: {:.4f}".format(test_loss))
 
-    return test_loss
+    return test_loss, f0_loss / len(test_loader)
 
 
 loss_list = []
 test_loss_list = []
+f0_list = []
 num_epochs = 20
 
 # model.load_state_dict(torch.load('vae.pth'))
 
 for epoch in range(1, num_epochs + 1):
     loss = train(epoch)
-    test_loss = test(epoch)
-    print(loss)
-    print(test_loss)
+    test_loss, f0_loss = test(epoch)
 
     print(
         "epoch [{}/{}], loss: {:.4f} test_loss: {:.4f}".format(
@@ -274,9 +271,11 @@ for epoch in range(1, num_epochs + 1):
     # logging
     loss_list.append(loss)
     test_loss_list.append(test_loss)
+    f0_list.append(f0_loss)
 
     np.save("loss_list_baseline.npy", np.array(loss_list))
     np.save("test_loss_list_baseline.npy", np.array(test_loss_list))
+    np.save("test_f0loss_list_baseline.npy", np.array(f0_list))
 
     print(time.time() - start)
 
