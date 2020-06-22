@@ -249,14 +249,10 @@ def train(epoch):
         train_loss += loss.item()
         optimizer.step()
         del tmp
-        if batch_idx % 4945 == 0:
+        if i % 4945 == 0:
             print(
                 "Train Epoch: {} [{}/{} ({:.0f}%)]\tLoss: {:.6f}".format(
-                    epoch,
-                    batch_idx,
-                    train_num,
-                    100.0 * batch_idx / train_num,
-                    loss.item(),
+                    epoch, i, train_num, 100.0 * i / train_num, loss.item(),
                 )
             )
 
