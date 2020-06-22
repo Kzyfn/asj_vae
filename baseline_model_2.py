@@ -37,7 +37,7 @@ vuv_dim = 1  # 無声or 有声フラグ　？？
 bap_dim = 15  # 発話ごと非周期成分　？？
 
 duration_linguistic_dim = 438  # question_jp.hed で、ラベルに対する言語特徴量をルールベースで記述してる
-acoustic_linguisic_dim = 442  # 上のやつ+frame_features とは？？
+acoustic_linguisic_dim = 535  # 上のやつ+frame_features とは？？
 duration_dim = 1
 acoustic_dim = mgc_dim + lf0_dim + vuv_dim + bap_dim  # aoustice modelで求めたいもの
 
