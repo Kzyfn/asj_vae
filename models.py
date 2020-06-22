@@ -51,6 +51,7 @@ class VAE(nn.Module):
             num_layers,
             bidirectional=bidirectional,
             dropout=dropout,
+            batch_first=True,
         )  # 入力サイズはここできまる
         self.fc21 = nn.Linear(self.num_direction * 400, z_dim)
         self.fc22 = nn.Linear(self.num_direction * 400, z_dim)
@@ -65,15 +66,16 @@ class VAE(nn.Module):
             2,
             bidirectional=bidirectional,
             dropout=dropout,
+            batch_first=True,
         )
         self.fc3 = nn.Linear(self.num_direction * 400, 1)
 
-    def encode(self, linguistic_f, acoustic_f, mora_index):
-        x = torch.cat([linguistic_f, acoustic_f], dim=1)
+    def encode(self, linguistic_f, acoustic_f, mora_index, batch_size=1):
+        x = torch.cat([linguistic_f, acoustic_f], dim=2)
         x = self.fc11(x)
         x = F.relu(x)
 
-        out, hc = self.lstm1(x.view(x.size()[0], 1, -1))
+        out, hc = self.lstm1(x.view(batch_size, x.size()[0], -1))
         out_forward = out[:, :, :400][mora_index]
         mora_index_for_back = np.concatenate([[0], mora_index[:-1] + 1])
         out_back = out[:, :, 400:][mora_index_for_back]
@@ -145,6 +147,7 @@ class VQVAE(nn.Module):
             num_layers,
             bidirectional=bidirectional,
             dropout=dropout,
+            batch_first=True,
         )  # 入力サイズはここできまる
         self.fc2 = nn.Linear(self.num_direction * 400, z_dim)
         ##ここまでエンコーダ
@@ -159,7 +162,7 @@ class VQVAE(nn.Module):
             bidirectional=bidirectional,
             dropout=dropout,
         )
-        self.fc3 = nn.Linear(self.num_direction * 400, 1)
+        self.fc3 = nn.Linear(self.num_direction * 400, acoustic_dim)
 
     def choose_quantized_vector(self, x, epoch):
         if epoch >= 2:
