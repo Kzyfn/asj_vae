@@ -165,7 +165,7 @@ class VQVAE(nn.Module):
         self.fc3 = nn.Linear(self.num_direction * 400, acoustic_dim)
 
     def choose_quantized_vector(self, x, epoch):
-        if epoch >= 2:
+        if epoch >= 1:
             with torch.no_grad():
                 error = torch.sum((self.quantized_vectors.weight - x) ** 2, dim=1)
                 min_index = torch.argmin(error).item()

@@ -15,7 +15,7 @@ def objective(trial):
     num_layers = 2  # trial.suggest_int("num_lstm_layers", 1, 2)
     args.num_layers = num_layers
 
-    z_dim = trial.suggest_categorical("z_dim", [1, 2, 8])
+    z_dim = 8  # trial.suggest_categorical("z_dim", [1, 2, 8])
     args.z_dim = z_dim
 
     if args.output_dir.find("/") >= 0:
