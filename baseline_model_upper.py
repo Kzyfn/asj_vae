@@ -146,7 +146,7 @@ class Rnn(nn.Module):
         self.num_direction = 2 if bidirectional else 1
         ##ここまでエンコーダ
         acoustic_linguisic_dim_ = 442 + 1
-        self.fc11 = nn.Linear(acoustic_linguisic_dim_, acoustic_linguisic_dim)
+        self.fc11 = nn.Linear(acoustic_linguisic_dim_, acoustic_linguisic_dim_)
 
         self.lstm2 = nn.LSTM(
             acoustic_linguisic_dim_, 400, num_layers, bidirectional=bidirectional
