@@ -75,7 +75,7 @@ class VAE(nn.Module):
         x = self.fc11(x)
         x = F.relu(x)
 
-        out, hc = self.lstm1(x.view(batch_size, x.size()[0], -1))
+        out, hc = self.lstm1(x.view(x.size()[0], 1, -1))
         out_forward = out[:, :, :400][mora_index]
         mora_index_for_back = np.concatenate([[0], mora_index[:-1] + 1])
         out_back = out[:, :, 400:][mora_index_for_back]
