@@ -219,10 +219,7 @@ test_not_valid = []
 
 for i, mora_i in enumerate(mora_index_lists_for_model):
     if (i - 1) % 20 == 0:  # test
-        if test:
-            test_not_valid.append(i)
-        else:
-            pass
+        pass
     elif i % 20 == 0:  # valid
         test_mora_index_lists.append(mora_i)
     else:
