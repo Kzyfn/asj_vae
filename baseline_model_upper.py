@@ -190,14 +190,14 @@ def loss_function(recon_x, x):
 
 
 X_acoustic_train = [
-    minmax(x, X_min["train"], X_max["train"], feature_range=(0.01, 0.99))
+    minmax(x, X_min["acoustic"], X_max["acoustic"], feature_range=(0.01, 0.99))
     for x in X["acoustic"]["train"]
 ]
 Y_acoustic_train = [y for y in Y["acoustic"]["train"]]
 
 
 X_acoustic_test = [
-    minmax(x, X_min["train"], X_max["train"], feature_range=(0.01, 0.99))
+    minmax(x, X_min["acoustic"], X_max["acoustic"], feature_range=(0.01, 0.99))
     for x in X["acoustic"]["test"]
 ]
 Y_acoustic_test = [y for y in Y["acoustic"]["test"]]
@@ -292,13 +292,13 @@ for epoch in range(1, num_epochs + 1):
     loss_list.append(loss)
     test_loss_list.append(test_loss)
 
-    np.save("loss_list_baseline.npy", np.array(loss_list))
-    np.save("test_loss_list_baseline.npy", np.array(test_loss_list))
+    np.save("baseline2/loss_list_baseline.npy", np.array(loss_list))
+    np.save("baseline2/test_loss_list_baseline.npy", np.array(test_loss_list))
 
     print(time.time() - start)
 
 # save the training model
-np.save("loss_list_baseline.npy", np.array(loss_list))
-np.save("test_loss_list_baseline.npy", np.array(test_loss_list))
-torch.save(model.state_dict(), "baseline.pth")
+np.save("baseline2/loss_list_baseline.npy", np.array(loss_list))
+np.save("baseline2/test_loss_list_baseline.npy", np.array(test_loss_list))
+torch.save(model.state_dict(), "baseline2/baseline.pth")
 
