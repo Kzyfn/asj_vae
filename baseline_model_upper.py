@@ -105,7 +105,7 @@ h_l_labels_train = []
 h_l_labels_test = []
 for i in range(len(X["acoustic"]["train"])):
     h_l_label = np.loadtxt(
-        "../data/basic5000/accents/accents_"
+        "./data/basic5000/accents/accents_"
         + "0" * (4 - len(str(i + 1)))
         + str(i + 1)
         + ".csv",
