@@ -238,6 +238,8 @@ def train(epoch):
         h_l_label_tensor = torch.tensor([0] * data[0].shape[0]).to(device)
 
         for j, mora_i in enumerate(train_mora_index_lists[i]):
+            print(len(train_mora_index_lists[i]))
+            print(tmp[2].size())
             prev_index = 0 if j == 0 else j - 1
             h_l_label_tensor[prev_index : int(mora_i)] = tmp[2][j]
         x = torch.cat([tmp[0].float(), h_l_label_tensor.float().view(-1, 1)], dim=1)
