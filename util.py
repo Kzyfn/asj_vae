@@ -64,10 +64,10 @@ def train(epoch, model, train_loader, loss_function, optimizer, f0=False):
         train_loss += loss.item()
         if f0:
             with torch.no_grad():
-                f0_loss += += rmse(
-                recon_batch.detach().cpu().numpy().reshape(-1),
-                tmp[1].detach().cpu().numpy()[:, lf0_start_idx].reshape(-1),
-            )
+                f0_loss += rmse(
+                    recon_batch.detach().cpu().numpy().reshape(-1),
+                    tmp[1].detach().cpu().numpy()[:, lf0_start_idx].reshape(-1),
+                )
         optimizer.step()
         del tmp
 
@@ -208,7 +208,7 @@ def create_loader(test=False):
         [X_acoustic_test[i], Y_acoustic_test[i], test_mora_index_lists[i]]
         for i in range(len(test_mora_index_lists))
     ]
-    
+
     if test:
         return train_loader, test_loader, test_not_valid_loader
     else:
