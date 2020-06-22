@@ -71,7 +71,7 @@ class VAE(nn.Module):
         self.fc3 = nn.Linear(self.num_direction * 400, 1)
 
     def encode(self, linguistic_f, acoustic_f, mora_index, batch_size=1):
-        x = torch.cat([linguistic_f, acoustic_f], dim=2)
+        x = torch.cat([linguistic_f, acoustic_f], dim=1)
         x = self.fc11(x)
         x = F.relu(x)
 
@@ -189,8 +189,8 @@ class VQVAE(nn.Module):
 
     def encode(self, linguistic_f, acoustic_f, mora_index):
         x = torch.cat([linguistic_f, acoustic_f], dim=1)
-        # x = self.fc11(x)
-        # x = F.relu(x)
+        x = self.fc11(x)
+        x = F.relu(x)
         out, hc = self.lstm1(x.view(x.size()[0], 1, -1))
         out_forward = out[:, :, :400][mora_index]
         mora_index_for_back = np.concatenate([[0], mora_index[:-1] + 1])
@@ -217,8 +217,8 @@ class VQVAE(nn.Module):
             linguistic_features.size()[0], 1, -1
         )
 
-        # x = self.fc12(x)
-        # x = F.relu(x)
+        x = self.fc12(x)
+        x = F.relu(x)
 
         h3, (h, c) = self.lstm2(x)
         h3 = F.relu(h3)
