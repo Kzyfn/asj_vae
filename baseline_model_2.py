@@ -191,6 +191,10 @@ X_acoustic_test = [
 Y_acoustic_test = [y for y in Y["acoustic"]["test"]]
 
 
+train_loader = [[x, y] for x, y in zip(X_acoustic_train, Y_acoustic_train)]
+test_loader = [[x, y] for x, y in zip(X_acoustic_test, Y_acoustic_test)]
+
+
 def train(epoch):
     model.train()
     train_loss = 0
