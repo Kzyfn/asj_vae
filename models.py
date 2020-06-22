@@ -97,7 +97,6 @@ class VAE(nn.Module):
             dtype=torch.float32,
             requires_grad=True,
         ).to(device)
-        print(z.size())
 
         for i, mora_i in enumerate(mora_index):
             prev_index = 0 if i == 0 else int(mora_index[i - 1])
