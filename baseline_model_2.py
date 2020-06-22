@@ -100,6 +100,9 @@ for ty in ["acoustic"]:
         )
         utt_lengths[ty][phase] = np.array([len(x) for x in X[ty][phase]], dtype=np.int)
 
+"""
+ここでH/L ラベルをつける処理
+"""
 
 X_min = {}
 X_max = {}
@@ -175,23 +178,19 @@ def loss_function(recon_x, x):
 
 
 X_acoustic_train = [
-    minmax(x, X_min["train"], X_max["train"], feature_range=(0.01, 0.99))
+    minmax_scale(x, X_min["acoustic"], X_max["acoustic"], feature_range=(0.01, 0.99))
     for x in X["acoustic"]["train"]
 ]
-Y_acoustic_train = [
-    scale(y, Y_mean["train"], Y_scale["train"]) for y in Y["acoustic"]["train"]
-]
+Y_acoustic_train = [y for y in Y["acoustic"]["train"]]
 train_mora_index_lists = [
     train_mora_index_lists[i] for i in range(len(train_mora_index_lists))
 ]
 
 X_acoustic_test = [
-    minmax(x, X_min["train"], X_max["train"], feature_range=(0.01, 0.99))
+    minmax_scale(x, X_min["acoustic"], X_max["acoustic"], feature_range=(0.01, 0.99))
     for x in X["acoustic"]["test"]
 ]
-Y_acoustic_test = [
-    scale(y, Y_mean["train"], Y_scale["train"]) for y in Y["acoustic"]["test"]
-]
+Y_acoustic_test = [y for y in Y["acoustic"]["test"]]
 test_mora_index_lists = [
     test_mora_index_lists[i] for i in range(len(test_mora_index_lists))
 ]
