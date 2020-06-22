@@ -112,7 +112,7 @@ for i in range(len(X["acoustic"]["train"])):
     )
     if i % 20 == 0:
         h_l_labels_test.append(h_l_label)
-    elif (i - 1) % 20 == 0:
+    elif (i - 1) % 20 != 0:
         h_l_labels_train.append(h_l_label)
 
 
