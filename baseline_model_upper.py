@@ -289,7 +289,7 @@ def test(epoch):
                 h_l_label_tensor[prev_index : int(mora_i)] = tmp[2][j]
 
             recon_batch = model(
-                torch.cat([tmp[0].float(), tmp[2].float().view(-1, 1)], dim=1)
+                torch.cat([tmp[0].float(), h_l_label_tensor.float().view(-1, 1)], dim=1)
             )
             test_loss += loss_function(recon_batch, tmp[1]).item()
 
