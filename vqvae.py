@@ -44,9 +44,9 @@ def train_vqvae(args, trial=None):
                     data[2],
                 ).view(-1, args["z_dim"])
                 z = torch.cat([z, z_tmp], dim=0).to(device)
-        init_codebook = lbg.calc_q_vec(z)
+        init_codebook = torch.from_numpy(lbg.calc_q_vec(z)).to(device)
         print(init_codebook)
-        codebook = torch.nn.Parameter(torch.from_numpy(init_codebook)).to(device)
+        codebook = nn.Parameter(init_codebook)
         print(codebook)
         print(type(codebook))
         model.init_codebook(codebook)
