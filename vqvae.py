@@ -32,16 +32,18 @@ def train_vqvae(args, trial=None):
         lbg = LBG(num_class=args["num_class"], z_dim=args["z_dim"])
         # zを用意
         sampled_indices = random.sample(list(range(len(train_loader))), 100)
-        z = torch.tensor([[0] * args["z_dim"]])
+        z = torch.tensor([[0] * args["z_dim"]]).to(device)
 
         print("コードブックを初期化")
         for index in tqdm(sampled_indices):
             data = train_loader[index]
             with torch.no_grad():
                 z_tmp = model.encode(
-                    torch.tensor(data[0]), torch.tensor(data[1]), data[2]
+                    torch.tensor(data[0]).to(device),
+                    torch.tensor(data[1]).to(device),
+                    data[2],
                 ).view(-1, args["z_dim"])
-                z = torch.cat([z, z_tmp], dim=0)
+                z = torch.cat([z, z_tmp], dim=0).to(device)
         init_codebook = lbg.calc_q_vec(z)
         model.init_codebook(init_codebook)
 
