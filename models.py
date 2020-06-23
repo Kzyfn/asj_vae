@@ -306,22 +306,22 @@ class LBG:
         self.eps = np.array([1e-3] * z_dim)
 
     def calc_center(self, x):
-        vectors = x.reshape(-1, self.z_dim)
-        center_vec = np.sum(vectors, dim=0) / vectors.size()[0]
+        vectors = x.view(-1, self.z_dim)
+        center_vec = torch.sum(vectors, dim=0) / vectors.size()[0]
 
         return center_vec
 
     def calc_q_vec_init(self, x):
-        center_vec = self.calc_center(x)
+        center_vec = self.calc_center(x).cpu().numpy()
         init_rep_vecs = np.array([center_vec - self.eps, center_vec + self.eps])
 
         return init_rep_vecs
 
     def calc_q_vec(self, x):
-        data = x.cpu().numpy()
         # はじめに最初の代表点を求める
-        init_rep_vecs = self.calc_q_vec_init(data)
+        init_rep_vecs = self.calc_q_vec_init(x)
         # K-means で２クラスに分類
+        data = x.cpu().numpy()
         kmeans = KMeans(n_clusters=2, init=init_rep_vecs).fit(data)
 
         rep_vecs = kmeans.cluster_centers_
