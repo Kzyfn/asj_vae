@@ -228,7 +228,7 @@ def test(epoch):
             recon_batch = model(tmp[0])
             test_loss += loss_function(recon_batch, tmp[1]).item()
             f0_loss += F.mse_loss(
-                recon_batch.view(-1, 199)[:, :, lf0_start_idx], tmp[1][:, lf0_start_idx]
+                recon_batch.view(-1, 199)[:, lf0_start_idx], tmp[1][:, lf0_start_idx]
             ).item()
             del tmp
 
