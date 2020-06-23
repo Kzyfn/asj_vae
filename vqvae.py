@@ -35,7 +35,7 @@ def train_vqvae(args, trial=None):
         z = torch.tensor([[0.0] * args["z_dim"]]).to(device)
 
         print("コードブックを初期化")
-        for index in tqdm(sampled_indices):
+        for index in tqdm(range(len(train_loader))):
             data = train_loader[index]
             with torch.no_grad():
                 z_tmp = model.encode(
