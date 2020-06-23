@@ -306,7 +306,7 @@ class LBG:
         self.eps = np.array([1e-3] * z_dim)
 
     def calc_center(self, x):
-        vectors = x.view(-1, self.z_dim)
+        vectors = x.reshape(-1, self.z_dim)
         center_vec = np.sum(vectors, dim=0) / vectors.size()[0]
 
         return center_vec
