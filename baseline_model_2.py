@@ -226,7 +226,7 @@ def test(epoch):
             recon_batch = model(tmp[0])
             test_loss += loss_function(recon_batch, tmp[1]).item()
             f0_loss += F.mse_loss(
-                recon_batch[:, :, lf0_start_idx], tmp[1][:, lf0_start_idx]
+                recon_batch.view(-1, 199)[:, :, lf0_start_idx], tmp[1][:, lf0_start_idx]
             ).item()
             del tmp
 
@@ -258,6 +258,8 @@ for epoch in range(1, num_epochs + 1):
     test_loss_list.append(test_loss)
     f0_list.append(f0_loss)
 
+    if epoch % 5 == 0:
+        torch.save(model.state_dict(), "baseline1_{}.pth".format(epoch))
     np.save("loss_list_baseline.npy", np.array(loss_list))
     np.save("test_loss_list_baseline.npy", np.array(test_loss_list))
     np.save("test_f0loss_list_baseline.npy", np.array(f0_list))
@@ -267,5 +269,5 @@ for epoch in range(1, num_epochs + 1):
 # save the training model
 np.save("loss_list_baseline.npy", np.array(loss_list))
 np.save("test_loss_list_baseline.npy", np.array(test_loss_list))
-torch.save(model.state_dict(), "baseline.pth")
+torch.save(model.state_dict(), "baseline1.pth")
 

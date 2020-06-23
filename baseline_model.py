@@ -181,9 +181,7 @@ X_acoustic_train = [
 Y_acoustic_train = [
     scale(y, Y_mean["train"], Y_scale["train"]) for y in Y["acoustic"]["train"]
 ]
-train_mora_index_lists = [
-    train_mora_index_lists[i] for i in range(len(train_mora_index_lists))
-]
+
 
 X_acoustic_test = [
     minmax(x, X_min["train"], X_max["train"], feature_range=(0.01, 0.99))
@@ -192,10 +190,15 @@ X_acoustic_test = [
 Y_acoustic_test = [
     scale(y, Y_mean["train"], Y_scale["train"]) for y in Y["acoustic"]["test"]
 ]
-test_mora_index_lists = [
-    test_mora_index_lists[i] for i in range(len(test_mora_index_lists))
-]
 
+train_loader = [
+    [x, y]
+    for x, y in zip(X_acoustic_train, Y_acoustic_train)
+]
+test_loader = [
+    [x, ]
+    for x, y in zip(X_acoustic_test, Y_acoustic_test)
+]
 
 def train(epoch):
     model.train()
