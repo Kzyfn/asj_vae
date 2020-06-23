@@ -45,7 +45,8 @@ def train_vqvae(args, trial=None):
                 ).view(-1, args["z_dim"])
                 z = torch.cat([z, z_tmp], dim=0).to(device)
         init_codebook = lbg.calc_q_vec(z)
-        model.init_codebook(init_codebook)
+        print(init_codebook)
+        model.init_codebook(nn.Parameter(init_codebook, requires_grad=True))
 
     optimizer = optim.Adam(model.parameters(), lr=2e-3)  # 1e-3
 
