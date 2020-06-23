@@ -320,7 +320,7 @@ class LBG:
         init_rep_vecs = self.calc_q_vec_init(x)
         # K-means で２クラスに分類
         data = x.cpu().numpy()
-        kmeans = KMeans(n_clusters=2, init=init_rep_vecs).fit(data)
+        kmeans = KMeans(n_clusters=2, init=init_rep_vecs, n_init=1).fit(data)
 
         rep_vecs = kmeans.cluster_centers_
 
