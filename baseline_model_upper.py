@@ -103,7 +103,7 @@ for ty in ["acoustic"]:
 
 h_l_labels_train = []
 h_l_labels_test = []
-for i in range(len(X["acoustic"]["train"])):
+for i in range(5000):
     h_l_label = np.loadtxt(
         "./data/basic5000/accents/accents_"
         + "0" * (4 - len(str(i + 1)))
@@ -211,6 +211,7 @@ test_loader = [
     [x, y, l_h_label]
     for x, y, l_h_label in zip(X_acoustic_test, Y_acoustic_test, h_l_labels_test)
 ]
+
 mora_index_lists = sorted(glob(join("data/basic5000/mora_index", "squeezed_*.csv")))
 mora_index_lists_for_model = [np.loadtxt(path).reshape(-1) for path in mora_index_lists]
 train_mora_index_lists = []
@@ -236,15 +237,10 @@ def train(epoch):
             tmp.append(torch.from_numpy(data[j]).to(device))
 
         h_l_label_tensor = torch.tensor([0] * data[0].shape[0]).to(device)
-        if len(train_mora_index_lists[i]) != int(tmp[2].size()[0]):
-
-            print(i)
-            print(len(train_mora_index_lists[i]))
-            print(tmp[2].size())
         for j, mora_i in enumerate(train_mora_index_lists[i]):
-
-            prev_index = 0 if j == 0 else j - 1
+            prev_index = 0 if j == 0 else int(train_mora_index_lists[i][j - 1])
             h_l_label_tensor[prev_index : int(mora_i)] = tmp[2][j]
+
         x = torch.cat([tmp[0].float(), h_l_label_tensor.float().view(-1, 1)], dim=1)
         optimizer.zero_grad()
         recon_batch = model(x)
@@ -289,7 +285,7 @@ def test(epoch):
                 h_l_label_tensor[prev_index : int(mora_i)] = tmp[2][j]
 
             recon_batch = model(
-                torch.cat([tmp[0].float(), tmp[2].float().view(-1, 1)], dim=1)
+                torch.cat([tmp[0].float(), h_l_label_tensor.float().view(-1, 1)], dim=1)
             )
             test_loss += loss_function(recon_batch, tmp[1]).item()
 
@@ -322,6 +318,9 @@ for epoch in range(1, num_epochs + 1):
     # logging
     loss_list.append(loss)
     test_loss_list.append(test_loss)
+
+    if epoch % 5 == 0:
+        torch.save(model.state_dict(), "baseline2/baseline_{}.pth".format(epoch))
 
     np.save("baseline2/loss_list_baseline.npy", np.array(loss_list))
     np.save("baseline2/test_loss_list_baseline.npy", np.array(test_loss_list))
