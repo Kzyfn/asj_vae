@@ -312,14 +312,14 @@ class LBG:
         return center_vec
 
     def calc_q_vec_init(self, x):
-        center_vec = calc_center(x).cpu().numpy()
+        center_vec = self.calc_center(x).cpu().numpy()
         init_rep_vecs = np.array([center_vec - self.eps, center_vec + self.eps])
 
         return init_rep_vecs
 
     def calc_q_vec(self, x):
         # はじめに最初の代表点を求める
-        init_rep_vecs = calc_q_vec_init(x)
+        init_rep_vecs = self.calc_q_vec_init(x)
         # K-means で２クラスに分類
         kmeans = KMeans(n_clusters=2, init=init_rep_vecs)
 
