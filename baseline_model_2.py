@@ -123,9 +123,9 @@ class Rnn(nn.Module):
         self.fc3 = nn.Linear(self.num_direction * 400, acoustic_dim)
 
     def decode(self, linguistic_features):
-        x = self.fc11(linguistic_features.view(linguistic_features.size()[0], 1, -1))
-        x = F.relu(x)
-        h3, (h, c) = self.lstm2(x)
+        #x = self.fc11(linguistic_features.view(linguistic_features.size()[0], 1, -1))
+        #x = F.relu(x)
+        h3, (h, c) = self.lstm2(linguistic_features.size()[0], 1, -1))
         h3 = F.relu(h3)
 
         return self.fc3(h3)  # torch.sigmoid(self.fc3(h3))
