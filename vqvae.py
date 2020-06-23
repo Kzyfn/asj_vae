@@ -31,7 +31,7 @@ def train_vqvae(args, trial=None):
     else:
         lbg = LBG(num_class=args["num_class"], z_dim=args["z_dim"])
         # zを用意
-        sampled_indices = random.choice(list(range(len(train_loader))), 100)
+        sampled_indices = random.sample(list(range(len(train_loader))), 100)
         z = torch.tensor([[0] * args["z_dim"]])
 
         print("コードブックを初期化")
