@@ -259,15 +259,15 @@ for epoch in range(1, num_epochs + 1):
     f0_list.append(f0_loss)
 
     if epoch % 5 == 0:
-        torch.save(model.state_dict(), "baseline1_{}.pth".format(epoch))
-    np.save("loss_list_baseline.npy", np.array(loss_list))
-    np.save("test_loss_list_baseline.npy", np.array(test_loss_list))
-    np.save("test_f0loss_list_baseline.npy", np.array(f0_list))
+        torch.save(model.state_dict(), "baseline1/baseline1_{}.pth".format(epoch))
+    np.save("baseline1/loss_list_baseline.npy", np.array(loss_list))
+    np.save("baseline1/test_loss_list_baseline.npy", np.array(test_loss_list))
+    np.save("baseline1/test_f0loss_list_baseline.npy", np.array(f0_list))
 
     print(time.time() - start)
 
 # save the training model
-np.save("loss_list_baseline.npy", np.array(loss_list))
-np.save("test_loss_list_baseline.npy", np.array(test_loss_list))
-torch.save(model.state_dict(), "baseline1.pth")
+np.save("baseline1/loss_list_baseline.npy", np.array(loss_list))
+np.save("baseline1/test_loss_list_baseline.npy", np.array(test_loss_list))
+torch.save(model.state_dict(), "baseline1/baseline1.pth")
 
