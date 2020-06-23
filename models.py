@@ -8,6 +8,7 @@ from nnmnkwii.datasets import FileDataSource, FileSourceDataset
 from os.path import join, expanduser, basename, splitext, basename, exists
 import os
 from glob import glob
+from sklearn.cluster import KMeans
 import random
 
 mgc_dim = 180  # メルケプストラム次数　？？
@@ -196,6 +197,11 @@ class VQVAE(nn.Module):
 
         return self.fc2(h1)
 
+    def init_codebook(self, codebook):
+        self.quantized_vectors.weight = torch.tensor(codebook, required_grad=True).to(
+            device
+        )
+
     def decode(self, z, linguistic_features, mora_index):
 
         z_tmp = torch.tensor(
@@ -291,3 +297,37 @@ class BinaryFileSource(FileDataSource):
 
     def collect_features(self, path):
         return np.fromfile(path, dtype=np.float32).reshape(-1, self.dim)
+
+
+class LBG:
+    def __init__(self, num_class=2, z_dim=8):
+        self.num_class = num_class
+        self.z_dim = z_dim
+        self.eps = np.array([1e-3] * z_dim)
+
+    def calc_center(self, x):
+        vectors = x.view(-1, self.z_dim)
+        center_vec = torch.sum(vectors, dim=0) / vectors.size()[0]
+
+        return center_vec
+
+    def calc_q_vec_init(self, x):
+        center_vec = calc_center(x).cpu().numpy()
+        init_rep_vecs = np.array([center_vec - self.eps, center_vec + self.eps])
+
+        return init_rep_vecs
+
+    def calc_q_vec(self, x):
+        # はじめに最初の代表点を求める
+        init_rep_vecs = calc_q_vec_init(x)
+        # K-means で２クラスに分類
+        kmeans = KMeans(n_clusters=2, init=init_rep_vecs)
+
+        rep_vecs = kmeans.cluster_centers_
+
+        for i in range(int(np.log2(self.num_class)) - 1):
+            kmeans = KMeans(n_clusters=2 ** (i + 1), init=rep_vecs)
+            rep_vecs = kmeans.cluster_centers_
+
+        return rep_vecs
+
