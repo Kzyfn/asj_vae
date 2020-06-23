@@ -31,19 +31,22 @@ def train_vqvae(args, trial=None):
     else:
         lbg = LBG(num_class=args["num_class"], z_dim=args["z_dim"])
         # zを用意
-        sampled_indices = random.choice(list(range(len(train_loader))), 100)
-        z = torch.tensor([[0] * args["z_dim"]])
+        sampled_indices = random.sample(list(range(len(train_loader))), 100)
+        z = torch.tensor([[0.0] * args["z_dim"]]).to(device)
 
         print("コードブックを初期化")
-        for index in tqdm(sampled_indices):
+        for index in tqdm(range(len(train_loader))):
             data = train_loader[index]
             with torch.no_grad():
                 z_tmp = model.encode(
-                    torch.tensor(data[0]), torch.tensor(data[1]), data[2]
+                    torch.tensor(data[0]).to(device),
+                    torch.tensor(data[1]).to(device),
+                    data[2],
                 ).view(-1, args["z_dim"])
-                z = torch.cat([z, z_tmp], dim=0)
-        init_codebook = lbg.calc_q_vec(z)
-        model.init_codebook(init_codebook)
+                z = torch.cat([z, z_tmp], dim=0).to(device)
+        init_codebook = torch.from_numpy(lbg.calc_q_vec(z)).to(device)
+        codebook = nn.Parameter(init_codebook)
+        model.init_codebook(codebook)
 
     optimizer = optim.Adam(model.parameters(), lr=2e-3)  # 1e-3
 
@@ -93,5 +96,5 @@ def train_vqvae(args, trial=None):
 if __name__ == "__main__":
     args = parse()
     os.makedirs(args.output_dir, exist_ok=True)
-    train_vqvae(vars(args), test_ratio=0.1)
+    train_vqvae(vars(args))
 

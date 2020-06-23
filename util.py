@@ -30,10 +30,10 @@ def parse():
         "-ne", "--num_epoch", type=int, default=30,
     )
     parser.add_argument(
-        "-nl", "--num_layers", type=int, default=1,
+        "-nl", "--num_layers", type=int, default=2,
     )
     parser.add_argument(
-        "-zd", "--z_dim", type=int, default=1,
+        "-zd", "--z_dim", type=int, default=8,
     )
     parser.add_argument("-od", "--output_dir", type=str, required=True,),
     parser.add_argument("-dr", "--dropout_ratio", type=float, default=0.3,),
