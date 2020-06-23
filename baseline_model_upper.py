@@ -103,7 +103,7 @@ for ty in ["acoustic"]:
 
 h_l_labels_train = []
 h_l_labels_test = []
-for i in range(len(X["acoustic"]["train"])):
+for i in range(5000:
     h_l_label = np.loadtxt(
         "./data/basic5000/accents/accents_"
         + "0" * (4 - len(str(i + 1)))
