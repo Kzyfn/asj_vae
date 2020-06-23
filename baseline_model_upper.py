@@ -169,9 +169,6 @@ class Rnn(nn.Module):
 # In[104]:
 
 
-import pandas as pd
-
-
 device = "cuda"
 model = Rnn().to(device)
 optimizer = optim.Adam(model.parameters(), lr=2e-3)  # 1e-3

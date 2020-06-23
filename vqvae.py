@@ -7,8 +7,9 @@ import numpy as np
 from tqdm import tnrange, tqdm
 import optuna
 import os
+import random
 
-from models import VQVAE, BinaryFileSource
+from models import VQVAE, BinaryFileSource, LBG
 from loss_func import calc_lf0_rmse, vqvae_loss
 from util import create_loader, train, test, parse
 
@@ -21,12 +22,31 @@ def train_vqvae(args, trial=None):
     model = VQVAE(
         num_layers=args["num_layers"], z_dim=args["z_dim"], num_class=args["num_class"]
     ).to(device)
+
+    train_loader, test_loader = create_loader()
+
     if args["model_path"] != "":
         model.load_state_dict(torch.load(args["model_path"]))
 
+    else:
+        lbg = LBG(num_class=args["num_class"], z_dim=args["z_dim"])
+        # zを用意
+        sampled_indices = random.choice(list(range(len(train_loader))), 100)
+        z = torch.tensor([[0] * args["z_dim"]])
+
+        print("コードブックを初期化")
+        for index in tqdm(sampled_indices):
+            data = train_loader[index]
+            with torch.no_grad():
+                z_tmp = model.encode(
+                    torch.tensor(data[0]), torch.tensor(data[1]), data[2]
+                ).view(-1, args["z_dim"])
+                z = torch.cat([z, z_tmp], dim=0)
+        init_codebook = lbg.calc_q_vec(z)
+        model.init_codebook(init_codebook)
+
     optimizer = optim.Adam(model.parameters(), lr=2e-3)  # 1e-3
 
-    train_loader, test_loader = create_loader()
     train_num = int(args["train_ratio"] * len(train_loader))  # 1
     train_loader = train_loader[:train_num]
 
