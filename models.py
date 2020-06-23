@@ -198,7 +198,7 @@ class VQVAE(nn.Module):
         return self.fc2(h1)
 
     def init_codebook(self, codebook):
-        self.quantized_vectors.weight = torch.tensor(codebook, required_grad=True).to(
+        self.quantized_vectors.weight = torch.tensor(codebook, requires_grad=True).to(
             device
         )
 
