@@ -321,7 +321,7 @@ class LBG:
         # はじめに最初の代表点を求める
         init_rep_vecs = self.calc_q_vec_init(x)
         # K-means で２クラスに分類
-        kmeans = KMeans(n_clusters=2, init=init_rep_vecs)
+        kmeans = KMeans(n_clusters=2, init=init_rep_vecs).fit(x)
 
         rep_vecs = kmeans.cluster_centers_
 
