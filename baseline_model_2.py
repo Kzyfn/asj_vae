@@ -118,16 +118,14 @@ class Rnn(nn.Module):
         self.fc11 = nn.Linear(acoustic_linguisic_dim, acoustic_linguisic_dim)
 
         self.lstm2 = nn.LSTM(
-            acoustic_linguisic_dim, 400, num_layers, bidirectional=bidirectional
+            acoustic_linguisic_dim, 512, num_layers, bidirectional=bidirectional
         )
-        self.fc3 = nn.Linear(self.num_direction * 400, acoustic_dim)
+        self.fc3 = nn.Linear(self.num_direction * 512, acoustic_dim)
 
     def decode(self, linguistic_features):
-        # x = self.fc11(linguistic_features.view(linguistic_features.size()[0], 1, -1))
-        # x = F.relu(x)
-        h3, (h, c) = self.lstm2(
-            linguistic_features.view(linguistic_features.size()[0], 1, -1)
-        )
+        x = self.fc11(linguistic_features.view(linguistic_features.size()[0], 1, -1))
+        x = F.relu(x)
+        h3, (h, c) = self.lstm2(x)
         h3 = F.relu(h3)
 
         return self.fc3(h3)  # torch.sigmoid(self.fc3(h3))
@@ -164,14 +162,18 @@ X_acoustic_train = [
     minmax_scale(x, X_min["acoustic"], X_max["acoustic"], feature_range=(0.01, 0.99))
     for x in X["acoustic"]["train"]
 ]
-Y_acoustic_train = [y for y in Y["acoustic"]["train"]]
+Y_acoustic_train = [
+    scale(y, Y_mean["acoustic"], Y_scale["acoustic"]) for y in Y["acoustic"]["train"]
+]
 
 
 X_acoustic_test = [
     minmax_scale(x, X_min["acoustic"], X_max["acoustic"], feature_range=(0.01, 0.99))
     for x in X["acoustic"]["test"]
 ]
-Y_acoustic_test = [y for y in Y["acoustic"]["test"]]
+Y_acoustic_test = [
+    scale(y, Y_mean["acoustic"], Y_scale["acoustic"]) for y in Y["acoustic"]["test"]
+]
 
 
 train_loader = [[x, y] for x, y in zip(X_acoustic_train, Y_acoustic_train)]
