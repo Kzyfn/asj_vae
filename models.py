@@ -198,6 +198,7 @@ class VQVAE(nn.Module):
         return self.fc2(h1)
 
     def init_codebook(self, codebook):
+        print(codebook)
         self.quantized_vectors.weight = codebook
 
     def decode(self, z, linguistic_features, mora_index):
