@@ -118,7 +118,7 @@ class Rnn(nn.Module):
         self.fc11 = nn.Linear(acoustic_linguisic_dim, acoustic_linguisic_dim)
 
         self.lstm2 = nn.LSTM(
-            acoustic_linguisic_dim, 512, num_layers, bidirectional=bidirectional
+            acoustic_linguisic_dim, 512, num_layers, bidirectional=bidirectional, dropout=0.15
         )
         self.fc3 = nn.Linear(self.num_direction * 512, acoustic_dim)
 
@@ -143,7 +143,8 @@ import pandas as pd
 
 device = "cuda"
 model = Rnn().to(device)
-optimizer = optim.Adam(model.parameters(), lr=2e-3)  # 1e-3
+model.load_state_dict(torch.load('baseline1/baseline1_5.pth'))
+optimizer = optim.Adam(model.parameters(), lr=2e-5, weight_decay=2.8e-9)  # 1e-3
 
 start = time.time()
 
@@ -163,7 +164,7 @@ X_acoustic_train = [
     for x in X["acoustic"]["train"]
 ]
 Y_acoustic_train = [
-    scale(y, Y_mean["acoustic"], Y_scale["acoustic"]) for y in Y["acoustic"]["train"]
+    y for y in Y["acoustic"]["train"]
 ]
 
 
@@ -172,7 +173,7 @@ X_acoustic_test = [
     for x in X["acoustic"]["test"]
 ]
 Y_acoustic_test = [
-    scale(y, Y_mean["acoustic"], Y_scale["acoustic"]) for y in Y["acoustic"]["test"]
+    y for y in Y["acoustic"]["test"]
 ]
 
 
@@ -263,7 +264,7 @@ for epoch in range(1, num_epochs + 1):
     f0_list.append(f0_loss)
 
     if epoch % 5 == 0:
-        torch.save(model.state_dict(), "baseline1/baseline1_{}.pth".format(epoch))
+        torch.save(model.state_dict(), "baseline1/baseline1_{}.pth".format(epoch+5))
     np.save("baseline1/loss_list_baseline.npy", np.array(loss_list))
     np.save("baseline1/test_loss_list_baseline.npy", np.array(test_loss_list))
     np.save("baseline1/test_f0loss_list_baseline.npy", np.array(f0_list))
