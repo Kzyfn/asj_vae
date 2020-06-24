@@ -108,16 +108,35 @@ compressed_accent_info_test = [
     for x in X["acoustic"]["test"]
 ]
 
+x_train = []
+x_test = []
+
 for i in range(len(X["acoustic"]["train"])):
     x = X["acoustic"]["train"][i]
-    X["acoustic"]["train"][i] = np.concatenate(
-        [x[:, :285], x[:, 335:488], x[:, 531:], compressed_accent_info_train[i][:, :8]]
+    x_train.append(
+        np.concatenate(
+            [
+                x[:, :285],
+                x[:, 335:488],
+                x[:, 531:],
+                compressed_accent_info_train[i][:, :8],
+            ],
+            axis=1,
+        )
     )
 
 for i in range(len(X["acoustic"]["test"])):
     x = X["acoustic"]["test"][i]
-    X["acoustic"]["test"][i] = np.concatenate(
-        [x[:, :285], x[:, 335:488], x[:, 531:], compressed_accent_info_test[i][:, :8]]
+    x_test.append(
+        np.concatenate(
+            [
+                x[:, :285],
+                x[:, 335:488],
+                x[:, 531:],
+                compressed_accent_info_test[i][:, :8],
+            ],
+            axis=1,
+        )
     )
 
 
@@ -132,7 +151,7 @@ Y_var = {}
 Y_scale = {}
 
 for typ in ["acoustic"]:
-    X_min[typ], X_max[typ] = minmax(X[typ]["train"], utt_lengths[typ]["train"])
+    X_min[typ], X_max[typ] = minmax(x_train, utt_lengths[typ]["train"])
     Y_mean[typ], Y_var[typ] = meanvar(Y[typ]["train"], utt_lengths[typ]["train"])
     Y_scale[typ] = np.sqrt(Y_var[typ])
 
@@ -206,7 +225,7 @@ def loss_function(recon_x, x):
 
 X_acoustic_train = [
     minmax_scale(x, X_min["acoustic"], X_max["acoustic"], feature_range=(0.01, 0.99))
-    for x in X["acoustic"]["train"]
+    for x in x_train
 ]
 Y_acoustic_train = [
     y
@@ -218,7 +237,7 @@ Y_acoustic_train = [
 
 X_acoustic_test = [
     minmax_scale(x, X_min["acoustic"], X_max["acoustic"], feature_range=(0.01, 0.99))
-    for x in X["acoustic"]["test"]
+    for x in x_test
 ]
 Y_acoustic_test = [
     y
