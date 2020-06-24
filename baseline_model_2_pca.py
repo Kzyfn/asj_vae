@@ -13,6 +13,8 @@ from nnmnkwii import paramgen
 from nnmnkwii.io import hts
 from nnmnkwii.frontend import merlin as fe
 from nnmnkwii.postfilters import merlin_post_filter
+from sklearn.decomposition import PCA
+
 
 from os.path import join, expanduser, basename, splitext, basename, exists
 import os
@@ -38,6 +40,7 @@ bap_dim = 15  # 発話ごと非周期成分　？？
 
 duration_linguistic_dim = 438  # question_jp.hed で、ラベルに対する言語特徴量をルールベースで記述してる
 acoustic_linguisic_dim = 535  # 上のやつ+frame_features とは？？
+acoustic_linguisic_dim_model = 442 + 8
 duration_dim = 1
 acoustic_dim = mgc_dim + lf0_dim + vuv_dim + bap_dim  # aoustice modelで求めたいもの
 
@@ -81,6 +84,43 @@ for ty in ["acoustic"]:
         )
         utt_lengths[ty][phase] = np.array([len(x) for x in X[ty][phase]], dtype=np.int)
 
+accent_info_train_ = [
+    np.concatenate([x[:, 285:335], x[:, 488:531]], axis=1).reshape(-1, 93)
+    for x in X["acoustic"]["train"]
+]
+
+accent_info_train = []
+
+for x in accent_info_train_:
+    accent_info_train += list(x)
+
+accent_info_train = np.array(accent_info_train)
+
+pca = PCA(whiten=True)
+pca.fit(accent_info_train)
+
+compressed_accent_info_train = [
+    pca.fit_transform(np.concatenate([x[:, 285:335], x[:, 488:531]], axis=1))
+    for x in X["acoustic"]["train"]
+]
+compressed_accent_info_test = [
+    pca.fit_transform(np.concatenate([x[:, 285:335], x[:, 488:531]], axis=1))
+    for x in X["acoustic"]["test"]
+]
+
+for i in range(len(X["acoustic"]["train"])):
+    x = X["acoustic"]["train"][i]
+    X["acoustic"]["train"][i] = np.concatenate(
+        [x[:, :285], x[:, 335:488], x[:, 531:], compressed_accent_info_train[i][:, :8]]
+    )
+
+for i in range(len(X["acoustic"]["test"])):
+    x = X["acoustic"]["test"][i]
+    X["acoustic"]["test"][i] = np.concatenate(
+        [x[:, :285], x[:, 335:488], x[:, 531:], compressed_accent_info_test[i][:, :8]]
+    )
+
+
 """
 ここでH/L ラベルをつける処理
 """
@@ -115,10 +155,12 @@ class Rnn(nn.Module):
         self.num_direction = 2 if bidirectional else 1
         ##ここまでエンコーダ
 
-        self.fc11 = nn.Linear(acoustic_linguisic_dim, acoustic_linguisic_dim)
+        self.fc11 = nn.Linear(
+            acoustic_linguisic_dim_model, acoustic_linguisic_dim_model
+        )
 
         self.lstm2 = nn.LSTM(
-            acoustic_linguisic_dim,
+            acoustic_linguisic_dim_model,
             512,
             num_layers,
             bidirectional=bidirectional,
@@ -147,8 +189,7 @@ import pandas as pd
 
 device = "cuda"
 model = Rnn().to(device)
-model.load_state_dict(torch.load("baseline1/baseline1_5.pth"))
-optimizer = optim.Adam(model.parameters(), lr=2e-5, weight_decay=2.8e-9)  # 1e-3
+optimizer = optim.Adam(model.parameters(), lr=2e-4)  # 1e-3
 
 start = time.time()
 
@@ -167,14 +208,24 @@ X_acoustic_train = [
     minmax_scale(x, X_min["acoustic"], X_max["acoustic"], feature_range=(0.01, 0.99))
     for x in X["acoustic"]["train"]
 ]
-Y_acoustic_train = [y for y in Y["acoustic"]["train"]]
+Y_acoustic_train = [
+    y
+    for y in Y["acoustic"][
+        "train"
+    ]  # scale(y, Y_mean["acoustic"], Y_scale["acoustic"]) for y in Y["acoustic"]["train"]
+]
 
 
 X_acoustic_test = [
     minmax_scale(x, X_min["acoustic"], X_max["acoustic"], feature_range=(0.01, 0.99))
     for x in X["acoustic"]["test"]
 ]
-Y_acoustic_test = [y for y in Y["acoustic"]["test"]]
+Y_acoustic_test = [
+    y
+    for y in Y["acoustic"][
+        "test"
+    ]  # scale(y, Y_mean["acoustic"], Y_scale["acoustic"]) for y in Y["acoustic"]["test"]
+]
 
 
 train_loader = [[x, y] for x, y in zip(X_acoustic_train, Y_acoustic_train)]
@@ -264,7 +315,7 @@ for epoch in range(1, num_epochs + 1):
     f0_list.append(f0_loss)
 
     if epoch % 5 == 0:
-        torch.save(model.state_dict(), "baseline1/baseline1_{}.pth".format(epoch + 5))
+        torch.save(model.state_dict(), "baseline1/baseline1_{}.pth".format(epoch))
     np.save("baseline1/loss_list_baseline.npy", np.array(loss_list))
     np.save("baseline1/test_loss_list_baseline.npy", np.array(test_loss_list))
     np.save("baseline1/test_f0loss_list_baseline.npy", np.array(f0_list))
