@@ -209,7 +209,7 @@ import pandas as pd
 
 device = "cuda"
 model = Rnn().to(device)
-model.load_state_dict(torch.load("baseline1_pca8/baseline1_10.pth"))
+model.load_state_dict(torch.load("baseline1_pca8/baseline1_10.pth_10"))
 optimizer = optim.Adam(model.parameters(), lr=2e-5, weight_decay=2.8e-9)  # 1e-3
 
 start = time.time()
