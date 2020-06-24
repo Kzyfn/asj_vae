@@ -171,7 +171,7 @@ class Rnn(nn.Module):
 
 device = "cuda"
 model = Rnn().to(device)
-model.load_stat_dict(torch.load("baseline2/baseline_20.pth"))
+model.load_state_dict(torch.load("baseline2/baseline_20.pth"))
 optimizer = optim.Adam(model.parameters(), lr=2e-4)  # 1e-3
 
 start = time.time()
@@ -318,7 +318,7 @@ for epoch in range(1, num_epochs + 1):
     test_loss_list.append(test_loss)
 
     if epoch % 5 == 0:
-        torch.save(model.state_dict(), "baseline2/baseline_{}.pth".format(epoch))
+        torch.save(model.state_dict(), "baseline2/baseline_{}.pth".format(epoch + 20))
 
     np.save("baseline2/loss_list_baseline.npy", np.array(loss_list))
     np.save("baseline2/test_loss_list_baseline.npy", np.array(test_loss_list))
