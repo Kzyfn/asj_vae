@@ -26,7 +26,7 @@ import librosa
 import librosa.display
 
 
-DATA_ROOT = "./data/basic5000"  # NIT-ATR503/"#
+DATA_ROOT = "../../tutorial/asj_vae/data/basic5000"  # NIT-ATR503/"#
 test_size = 0.01  # This means 480 utterances for training data
 random_state = 1234
 
@@ -178,27 +178,18 @@ X_acoustic_train = [
     minmax(x, X_min["train"], X_max["train"], feature_range=(0.01, 0.99))
     for x in X["acoustic"]["train"]
 ]
-Y_acoustic_train = [
-    scale(y, Y_mean["train"], Y_scale["train"]) for y in Y["acoustic"]["train"]
-]
+Y_acoustic_train = [y for y in Y["acoustic"]["train"]]
 
 
 X_acoustic_test = [
     minmax(x, X_min["train"], X_max["train"], feature_range=(0.01, 0.99))
     for x in X["acoustic"]["test"]
 ]
-Y_acoustic_test = [
-    scale(y, Y_mean["train"], Y_scale["train"]) for y in Y["acoustic"]["test"]
-]
+Y_acoustic_test = [y for y in Y["acoustic"]["test"]]
 
-train_loader = [
-    [x, y]
-    for x, y in zip(X_acoustic_train, Y_acoustic_train)
-]
-test_loader = [
-    [x, ]
-    for x, y in zip(X_acoustic_test, Y_acoustic_test)
-]
+train_loader = [[x, y] for x, y in zip(X_acoustic_train, Y_acoustic_train)]
+test_loader = [[x,] for x, y in zip(X_acoustic_test, Y_acoustic_test)]
+
 
 def train(epoch):
     model.train()
@@ -221,8 +212,8 @@ def train(epoch):
                 "Train Epoch: {} [{}/{} ({:.0f}%)]\tLoss: {:.6f}".format(
                     epoch,
                     batch_idx,
-                    train_num,
-                    100.0 * batch_idx / train_num,
+                    len(train_loader),
+                    100.0 * batch_idx / len(train_loader),
                     loss.item(),
                 )
             )
@@ -279,13 +270,13 @@ for epoch in range(1, num_epochs + 1):
     loss_list.append(loss)
     test_loss_list.append(test_loss)
 
-    np.save("loss_list_baseline.npy", np.array(loss_list))
-    np.save("test_loss_list_baseline.npy", np.array(test_loss_list))
+    np.save("baseline_lower/loss_list_baseline.npy", np.array(loss_list))
+    np.save("baseline_lower/test_loss_list_baseline.npy", np.array(test_loss_list))
 
     print(time.time() - start)
 
 # save the training model
-np.save("loss_list_baseline.npy", np.array(loss_list))
-np.save("test_loss_list_baseline.npy", np.array(test_loss_list))
-torch.save(model.state_dict(), "baseline.pth")
+np.save("baseline_lower/loss_list_baseline.npy", np.array(loss_list))
+np.save("baseline_lower/test_loss_list_baseline.npy", np.array(test_loss_list))
+torch.save(model.state_dict(), "baseline_lower/baseline.pth")
 
