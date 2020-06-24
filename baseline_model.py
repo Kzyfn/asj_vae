@@ -140,7 +140,7 @@ import pandas as pd
 
 device = "cuda"
 model = Rnn().to(device)
-optimizer = optim.Adam(model.parameters(), lr=2e-3)  # 1e-3
+optimizer = optim.Adam(model.parameters(), lr=2e-4)  # 1e-3
 
 start = time.time()
 
