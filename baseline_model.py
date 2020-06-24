@@ -26,7 +26,7 @@ import librosa
 import librosa.display
 
 
-DATA_ROOT = "./../../tutorial/asj_vae/data/basic5000"  # NIT-ATR503/"#
+DATA_ROOT = "./data/basic5000"  # NIT-ATR503/"#
 test_size = 0.01  # This means 480 utterances for training data
 random_state = 1234
 
