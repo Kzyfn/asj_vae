@@ -171,7 +171,8 @@ class Rnn(nn.Module):
 
 device = "cuda"
 model = Rnn().to(device)
-optimizer = optim.Adam(model.parameters(), lr=2e-3)  # 1e-3
+model.load_stat_dict(torch.load("baseline2/baseline_20.pth"))
+optimizer = optim.Adam(model.parameters(), lr=2e-4)  # 1e-3
 
 start = time.time()
 
