@@ -118,7 +118,11 @@ class Rnn(nn.Module):
         self.fc11 = nn.Linear(acoustic_linguisic_dim, acoustic_linguisic_dim)
 
         self.lstm2 = nn.LSTM(
-            acoustic_linguisic_dim, 512, num_layers, bidirectional=bidirectional
+            acoustic_linguisic_dim,
+            512,
+            num_layers,
+            bidirectional=bidirectional,
+            dropout=0.15,
         )
         self.fc3 = nn.Linear(self.num_direction * 512, acoustic_dim)
 
@@ -163,7 +167,10 @@ X_acoustic_train = [
     for x in X["acoustic"]["train"]
 ]
 Y_acoustic_train = [
-    scale(y, Y_mean["acoustic"], Y_scale["acoustic"]) for y in Y["acoustic"]["train"]
+    y
+    for y in Y["acoustic"][
+        "train"
+    ]  # scale(y, Y_mean["acoustic"], Y_scale["acoustic"]) for y in Y["acoustic"]["train"]
 ]
 
 
@@ -172,7 +179,10 @@ X_acoustic_test = [
     for x in X["acoustic"]["test"]
 ]
 Y_acoustic_test = [
-    scale(y, Y_mean["acoustic"], Y_scale["acoustic"]) for y in Y["acoustic"]["test"]
+    y
+    for y in Y["acoustic"][
+        "test"
+    ]  # scale(y, Y_mean["acoustic"], Y_scale["acoustic"]) for y in Y["acoustic"]["test"]
 ]
 
 
