@@ -40,7 +40,8 @@ bap_dim = 15  # 発話ごと非周期成分　？？
 
 duration_linguistic_dim = 438  # question_jp.hed で、ラベルに対する言語特徴量をルールベースで記述してる
 acoustic_linguisic_dim = 535  # 上のやつ+frame_features とは？？
-acoustic_linguisic_dim_model = 442 + 8
+pca_dim = 8
+acoustic_linguisic_dim_model = 442 + pca_dim
 duration_dim = 1
 acoustic_dim = mgc_dim + lf0_dim + vuv_dim + bap_dim  # aoustice modelで求めたいもの
 
@@ -119,7 +120,7 @@ for i in range(len(X["acoustic"]["train"])):
                 x[:, :285],
                 x[:, 335:488],
                 x[:, 531:],
-                compressed_accent_info_train[i][:, :8],
+                compressed_accent_info_train[i][:, :pca_dim],
             ],
             axis=1,
         )
@@ -133,7 +134,7 @@ for i in range(len(X["acoustic"]["test"])):
                 x[:, :285],
                 x[:, 335:488],
                 x[:, 531:],
-                compressed_accent_info_test[i][:, :8],
+                compressed_accent_info_test[i][:, :pca_dim],
             ],
             axis=1,
         )
@@ -208,7 +209,8 @@ import pandas as pd
 
 device = "cuda"
 model = Rnn().to(device)
-optimizer = optim.Adam(model.parameters(), lr=2e-4, weight_decay=2.8e-9)  # 1e-3
+model.load_state_dict(torch.load("baseline1_pca8/baseline1_10.pth"))
+optimizer = optim.Adam(model.parameters(), lr=2e-5, weight_decay=2.8e-9)  # 1e-3
 
 start = time.time()
 
