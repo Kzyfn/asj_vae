@@ -169,7 +169,7 @@ X_acoustic_test = [
 Y_acoustic_test = [y for y in Y["acoustic"]["test"]]
 
 train_loader = [[x, y] for x, y in zip(X_acoustic_train, Y_acoustic_train)]
-test_loader = [[x,] for x, y in zip(X_acoustic_test, Y_acoustic_test)]
+test_loader = [[x, y] for x, y in zip(X_acoustic_test, Y_acoustic_test)]
 
 
 def train(epoch):
@@ -216,7 +216,7 @@ def test(epoch):
             tmp = []
 
             for j in range(2):
-                tmp.append(torch.tensor(data[j]).to(device))
+                tmp.append(torch.from_numpy(data[j]).to(device))
 
             recon_batch = model(tmp[0])
             test_loss += loss_function(recon_batch, tmp[1]).item()
