@@ -52,7 +52,6 @@ class VAE(nn.Module):
             num_layers,
             bidirectional=bidirectional,
             dropout=dropout,
-            batch_first=True,
         )  # 入力サイズはここできまる
         self.fc21 = nn.Linear(self.num_direction * 512, z_dim)
         self.fc22 = nn.Linear(self.num_direction * 512, z_dim)
@@ -67,7 +66,6 @@ class VAE(nn.Module):
             2,
             bidirectional=bidirectional,
             dropout=dropout,
-            batch_first=True,
         )
         self.fc3 = nn.Linear(self.num_direction * 512, acoustic_dim)
 
@@ -77,11 +75,10 @@ class VAE(nn.Module):
         x = F.relu(x)
 
         out, hc = self.lstm1(x.view(x.size()[0], 1, -1))
-        out = put[mora_index]
-        # out_forward = out[:, :, :512][mora_index]
-        # mora_index_for_back = np.concatenate([[0], mora_index[:-1] + 1])
-        # out_back = out[:, :, 512:][mora_index_for_back]
-        # out = torch.cat([out_forward, out_back], dim=2)
+        out_forward = out[:, :, :512][mora_index]
+        mora_index_for_back = np.concatenate([[0], mora_index[:-1] + 1])
+        out_back = out[:, :, 512:][mora_index_for_back]
+        out = torch.cat([out_forward, out_back], dim=2)
 
         h1 = F.relu(out)
 
@@ -149,7 +146,6 @@ class VQVAE(nn.Module):
             num_layers,
             bidirectional=bidirectional,
             dropout=dropout,
-            batch_first=True,
         )  # 入力サイズはここできまる
         self.fc2 = nn.Linear(self.num_direction * 512, z_dim)
         ##ここまでエンコーダ
