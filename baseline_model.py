@@ -156,14 +156,14 @@ def loss_function(recon_x, x):
 
 
 X_acoustic_train = [
-    minmax(x, X_min["train"], X_max["train"], feature_range=(0.01, 0.99))
+    minmax(x, X_min["acoustic"], X_max["acoustic"], feature_range=(0.01, 0.99))
     for x in X["acoustic"]["train"]
 ]
 Y_acoustic_train = [y for y in Y["acoustic"]["train"]]
 
 
 X_acoustic_test = [
-    minmax(x, X_min["train"], X_max["train"], feature_range=(0.01, 0.99))
+    minmax(x, X_min["acoustic"], X_max["acoustic"], feature_range=(0.01, 0.99))
     for x in X["acoustic"]["test"]
 ]
 Y_acoustic_test = [y for y in Y["acoustic"]["test"]]
