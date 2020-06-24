@@ -48,7 +48,7 @@ def train_vqvae(args, trial=None):
         codebook = nn.Parameter(init_codebook)
         model.init_codebook(codebook)
 
-    optimizer = optim.Adam(model.parameters(), lr=2e-3)  # 1e-3
+    optimizer = optim.Adam(model.parameters(), lr=2e-4)  # 1e-3
 
     train_num = int(args["train_ratio"] * len(train_loader))  # 1
     train_loader = train_loader[:train_num]
