@@ -166,7 +166,8 @@ class VQVAE(nn.Module):
         self.fc3 = nn.Linear(self.num_direction * 400, acoustic_dim)
 
     def choose_quantized_vector(self, z, epoch):  # zはエンコーダの出力
-        min_index = random.choice(list(range(self.num_class)))
+        error = torch.sum((self.quantized_vectors.weight - z) ** 2, dim=1)
+        min_index = torch.argmin(error).item()
 
         return self.quantized_vectors.weight[min_index]
 
@@ -174,13 +175,11 @@ class VQVAE(nn.Module):
         z = torch.zeros(z_unquantized.size(), requires_grad=True).to(device)
 
         for i in range(z_unquantized.size()[0]):
-            z[i] = (
-                z_unquantized[i]
-                + (
-                    self.choose_quantized_vector(z_unquantized[i].reshape(-1), epoch)
-                    - z_unquantized[i]
-                ).detach()
-            )
+            z[i] = z_unquantized[i]
+            +(
+                self.choose_quantized_vector(z_unquantized[i].reshape(-1), epoch)
+                - z_unquantized[i]
+            ).detach()
 
         return z
 
