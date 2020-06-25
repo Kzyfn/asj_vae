@@ -77,17 +77,17 @@ class VAE(nn.Module):
         self.count += 1
         print(self.count)
         out, hc = self.lstm1(x.view(x.size()[0], 1, -1))
-        if self.count in [1, 251]:
-            print(out)
-            print(out.dtype)
-        # out_forward = out[:, :, :512][mora_index]
-        # mora_index_for_back = np.concatenate([[0], mora_index[:-1] + 1])
-        # out_back = out[:, :, 512:][mora_index_for_back]
-        print(out.size())
-        try:
-            out = out[mora_index]  # torch.cat([out_forward, out_back], dim=2)
-        except:
-            print(out)
+        if out.size()[0] != 1024:
+            out_forward = out[:, :, :512][mora_index]
+            mora_index_for_back = np.concatenate([[0], mora_index[:-1] + 1])
+            out_back = out[:, :, 512:][mora_index_for_back]
+            out = torch.cat([out_forward, out_back], dim=2)
+        else:
+            out_forward = out.view(-1, 1024)[:, :512][mora_index].view(-1, 1, 512)
+            mora_index_for_back = np.concatenate([[0], mora_index[:-1] + 1])
+            out_back = out.view(-1, 1024)[:, 512:]mora_index_for_back].view(-1, 1, 512)
+            out = torch.cat([out_forward, out_back], dim=2)
+
 
         h1 = F.relu(out)
 
