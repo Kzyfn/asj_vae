@@ -26,6 +26,7 @@ import librosa
 import librosa.display
 
 from util import trajectory_smoothing
+from loss_func import rmse
 
 DATA_ROOT = "./data/basic5000"  # NIT-ATR503/"#
 test_size = 0.01  # This means 480 utterances for training data
