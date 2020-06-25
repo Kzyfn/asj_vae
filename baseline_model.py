@@ -115,9 +115,13 @@ class Rnn(nn.Module):
         self.fc11 = nn.Linear(acoustic_linguisic_dim, acoustic_linguisic_dim)
 
         self.lstm2 = nn.LSTM(
-            acoustic_linguisic_dim, 400, num_layers, bidirectional=bidirectional
+            acoustic_linguisic_dim,
+            512,
+            num_layers,
+            bidirectional=bidirectional,
+            dropout=0.15,
         )
-        self.fc3 = nn.Linear(self.num_direction * 400, acoustic_dim)
+        self.fc3 = nn.Linear(self.num_direction * 512, acoustic_dim)
 
     def decode(self, linguistic_features):
         x = self.fc11(linguistic_features.view(linguistic_features.size()[0], 1, -1))
