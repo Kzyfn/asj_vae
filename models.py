@@ -80,8 +80,8 @@ class VAE(nn.Module):
         print(self.count)
         out, hc = self.lstm1(x.view(x.size()[0], 1, -1))
         if linguistic_f.size()[0] == 1024:
-            out_first = out[:512]
-            our_second = out[512:]
+            out_first = out[:500]
+            our_second = out[500:]
             out_first_forward = out_first[:, :, :hidden_num][mora_index]
             out_second_forward = our_second[:, :, :hidden_num][mora_index]
             out_forward = torch.cat([out_first_forward, out_second_forward])
