@@ -8,7 +8,7 @@ import torch
 import torch.nn.functional as F
 from scipy import signal
 import copys
-import pandas as import pd
+import pandas as pd
 
 from models import BinaryFileSource
 from loss_func import calc_lf0_rmse, rmse
@@ -161,7 +161,6 @@ def create_loader(test=False, batch_size=1):
         }
     ).to_csv("data/stats.csv", index=None)
 
-
     mora_index_lists = sorted(glob(join("data/basic5000/mora_index", "squeezed_*.csv")))
     mora_index_lists_for_model = [
         np.loadtxt(path).reshape(-1) for path in mora_index_lists
@@ -280,13 +279,11 @@ def test_loader():
     x_data = [np.fromfile(path, dtype=np.float32) for path in x_paths]
     mora_indices = [np.loadtxt(path) for path in mora_paths]
 
-    stats = pd.read_csv('data/stats.csv')
+    stats = pd.read_csv("data/stats.csv")
 
     ans = [
         [
-            minmax_scale(
-                x, stats["x_min"], stats["x_max"], feature_range=(0.01, 0.99)
-            ),
+            minmax_scale(x, stats["x_min"], stats["x_max"], feature_range=(0.01, 0.99)),
             trajectory_smoothing(y[:, lf0_start_idx].reshape(-1, 1)).reshape(-1),
             mora_i,
         ]
