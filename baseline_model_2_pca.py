@@ -245,8 +245,8 @@ def loss_function(recon_x, x):
     return MSE
 
 
-train_loader = [[x, y] for x, y in zip(X_acoustic_train, Y_acoustic_train)]
-test_loader = [[x, y] for x, y in zip(X_acoustic_test, Y_acoustic_test)]
+train_loader = [[x, y] for x, y in zip(x_train, Y_acoustic_train)]
+test_loader = [[x, y] for x, y in zip(x_test, Y_acoustic_test)]
 
 
 def train(epoch):
