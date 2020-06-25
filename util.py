@@ -7,7 +7,7 @@ from nnmnkwii.preprocessing import minmax, meanvar, minmax_scale, scale
 import torch
 import torch.nn.functional as F
 from scipy import signal
-import copys
+import copy
 import pandas as pd
 
 from models import BinaryFileSource
