@@ -233,7 +233,7 @@ class VQVAE(nn.Module):
 
 class Rnn(nn.Module):
     def __init__(
-        self, bidirectional=True, num_layers=1, accent_label_type=0
+        self, bidirectional=True, num_layers=2, accent_label_type=0
     ):  # accent_label_type: 0;なし, 1; 92次元, 2; H/Lラベル
         super(Rnn, self).__init__()
         self.num_layers = num_layers
