@@ -25,6 +25,7 @@ import pysptk
 import librosa
 import librosa.display
 
+from util import trajectory_smoothing
 
 DATA_ROOT = "./data/basic5000"  # NIT-ATR503/"#
 test_size = 0.01  # This means 480 utterances for training data
@@ -195,14 +196,14 @@ X_acoustic_train = [
     minmax_scale(x, X_min["acoustic"], X_max["acoustic"], feature_range=(0.01, 0.99))
     for x in X["acoustic"]["train"]
 ]
-Y_acoustic_train = [y for y in Y["acoustic"]["train"]]
+Y_acoustic_train = [trajectory_smoothing(y) for y in Y["acoustic"]["train"]]
 
 
 X_acoustic_test = [
     minmax_scale(x, X_min["acoustic"], X_max["acoustic"], feature_range=(0.01, 0.99))
     for x in X["acoustic"]["test"]
 ]
-Y_acoustic_test = [y for y in Y["acoustic"]["test"]]
+Y_acoustic_test = [trajectory_smoothing(y) for y in Y["acoustic"]["test"]]
 
 
 train_loader = [
