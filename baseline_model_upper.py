@@ -199,14 +199,20 @@ X_acoustic_train = [
     minmax_scale(x, X_min["acoustic"], X_max["acoustic"], feature_range=(0.01, 0.99))
     for x in X["acoustic"]["train"]
 ]
-Y_acoustic_train = [trajectory_smoothing(y) for y in Y["acoustic"]["train"]]
+Y_acoustic_train = [
+    trajectory_smoothing(y[:, lf0_start_idx].reshape(-1, 1)).reshape(-1)
+    for y in Y["acoustic"]["train"]
+]
 
 
 X_acoustic_test = [
     minmax_scale(x, X_min["acoustic"], X_max["acoustic"], feature_range=(0.01, 0.99))
     for x in X["acoustic"]["test"]
 ]
-Y_acoustic_test = [trajectory_smoothing(y) for y in Y["acoustic"]["test"]]
+Y_acoustic_test = [
+    trajectory_smoothing(y[:, lf0_start_idx].reshape(-1, 1)).reshape(-1)
+    for y in Y["acoustic"]["test"]
+]
 
 
 train_loader = [
@@ -252,7 +258,7 @@ def train(epoch):
         x = torch.cat([tmp[0].float(), h_l_label_tensor.float().view(-1, 1)], dim=1)
         optimizer.zero_grad()
         recon_batch = model(x)
-        loss = loss_function(recon_batch, tmp[1][:, lf0_start_idx])
+        loss = loss_function(recon_batch, tmp[1])
         loss.backward()
         train_loss += loss.item()
         optimizer.step()
@@ -298,10 +304,8 @@ def test(epoch):
             recon_batch = model(
                 torch.cat([tmp[0].float(), h_l_label_tensor.float().view(-1, 1)], dim=1)
             )
-            test_loss += loss_function(recon_batch, tmp[1][:, lf0_start_idx]).item()
-            f0_loss += rmse(
-                recon_batch.cpu().numpy(), tmp[1][:, lf0_start_idx].cpu().numpy()
-            ).item()
+            test_loss += loss_function(recon_batch, tmp[1]).item()
+            f0_loss += rmse(recon_batch.cpu().numpy(), tmp[1].cpu().numpy()).item()
 
             del tmp
 
