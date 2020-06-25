@@ -146,7 +146,7 @@ class Rnn(nn.Module):
         self.num_direction = 2 if bidirectional else 1
         ##ここまでエンコーダ
         acoustic_linguisic_dim_ = 442 + 1
-        self.fc11 = nn.Linear(acoustic_linguisic_dim_, acoustic_linguisic_dim_)
+        self.fc11 = nn.Linear(acoustic_linguisic_dim_, 1)  # acoustic_linguisic_dim_)
 
         self.lstm2 = nn.LSTM(
             acoustic_linguisic_dim_,
@@ -183,7 +183,7 @@ start = time.time()
 # Reconstruction + KL divergence losses summed over all elements and batch
 def loss_function(recon_x, x):
     MSE = F.mse_loss(
-        recon_x.view(-1), x.view(-1,), reduction="sum"
+        recon_x.reshape(-1), x.reshape(-1,), reduction="sum"
     )  # F.binary_cross_entropy(recon_x.view(-1), x.view(-1, ), reduction='sum')
     # print('LOSS')
     # print(BCE)
@@ -248,7 +248,7 @@ def train(epoch):
         x = torch.cat([tmp[0].float(), h_l_label_tensor.float().view(-1, 1)], dim=1)
         optimizer.zero_grad()
         recon_batch = model(x)
-        loss = loss_function(recon_batch, tmp[1])
+        loss = loss_function(recon_batch, tmp[1][:, lf0_start_idx])
         loss.backward()
         train_loss += loss.item()
         optimizer.step()
@@ -293,7 +293,7 @@ def test(epoch):
             recon_batch = model(
                 torch.cat([tmp[0].float(), h_l_label_tensor.float().view(-1, 1)], dim=1)
             )
-            test_loss += loss_function(recon_batch, tmp[1]).item()
+            test_loss += loss_function(recon_batch, tmp[1][:, lf0_start_idx]).item()
 
             del tmp
 

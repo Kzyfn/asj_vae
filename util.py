@@ -6,6 +6,8 @@ from os.path import join
 from nnmnkwii.preprocessing import minmax, meanvar, minmax_scale, scale
 import torch
 import torch.nn.functional as F
+import scipy
+import copy
 
 from models import BinaryFileSource
 from loss_func import calc_lf0_rmse, rmse
@@ -180,7 +182,7 @@ def create_loader(test=False, batch_size=1):
         )
         for i in range(len(X["acoustic"]["train"]))
     ]
-    Y_acoustic_train = [y for y in Y["acoustic"]["train"]]
+    Y_acoustic_train = [trajectory_smoothing(y) for y in Y["acoustic"]["train"]]
     # Y_acoustic_train = [scale(Y["acoustic"]["train"][i], Y_mean["acoustic"], Y_scale["acoustic"]) for i in range(len(Y["acoustic"]["train"]))]
     train_mora_index_lists = [
         train_mora_index_lists[i] for i in range(len(train_mora_index_lists))
@@ -195,7 +197,7 @@ def create_loader(test=False, batch_size=1):
         )
         for i in range(len(X["acoustic"]["test"]))
     ]
-    Y_acoustic_test = [y for y in Y["acoustic"]["test"]]
+    Y_acoustic_test = [trajectory_smoothing(y) for y in Y["acoustic"]["test"]]
     # Y_acoustic_test = [scale(Y["acoustic"]["test"][i], Y_mean["acoustic"], Y_scale["acoustic"])for i in range(len(Y["acoustic"]["test"]))]
     test_mora_index_lists = [
         test_mora_index_lists[i] for i in range(len(test_mora_index_lists))
@@ -214,3 +216,26 @@ def create_loader(test=False, batch_size=1):
         return train_loader, test_loader, test_not_valid_loader
     else:
         return train_loader, test_loader
+
+
+ def trajectory_smoothing(x, thresh = 0.5):
+    """apply trajectory smoothing to an array.
+    Parameters
+    ----------
+    x: array, [T, D]
+       array to be smoothed
+    thresh: scalar, 0 <= thresh <= 1,
+       threshold of the trajectory smoothing 
+    ------
+    y : array, [T, D],
+       trajectory-smoothed array
+    """
+
+    y = copy.copy(x)
+ 
+    b, a = signal.butter(2, thresh)
+    for d in range(y.shape[1]):
+      y[:, d] = signal.filtfilt(b, a, y[:, d])
+      y[:, d] = signal.filtfilt(b, a, y[::-1, d])[::-1]
+ 
+    return y
