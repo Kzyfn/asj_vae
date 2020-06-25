@@ -200,7 +200,7 @@ def create_loader(test=False, batch_size=1):
     Y_acoustic_test = [trajectory_smoothing(y) for y in Y["acoustic"]["test"]]
 
     print(Y_acoustic_test[0][:, lf0_start_idx])
-    print(Y['acoustic']['train'][0][:, lf0_start_idx])
+    print(Y["acoustic"]["train"][0][:, lf0_start_idx])
     # Y_acoustic_test = [scale(Y["acoustic"]["test"][i], Y_mean["acoustic"], Y_scale["acoustic"])for i in range(len(Y["acoustic"]["test"]))]
     test_mora_index_lists = [
         test_mora_index_lists[i] for i in range(len(test_mora_index_lists))
@@ -221,24 +221,24 @@ def create_loader(test=False, batch_size=1):
         return train_loader, test_loader
 
 
- def trajectory_smoothing(x, thresh = 0.1):
+def trajectory_smoothing(x, thresh=0.1):
     """apply trajectory smoothing to an array.
     Parameters
     ----------
     x: array, [T, D]
-       array to be smoothed
+        array to be smoothed
     thresh: scalar, 0 <= thresh <= 1,
-       threshold of the trajectory smoothing 
+        threshold of the trajectory smoothing 
     ------
     y : array, [T, D],
-       trajectory-smoothed array
+        trajectory-smoothed array
     """
 
     y = copy.copy(x)
- 
+
     b, a = signal.butter(2, thresh)
     for d in range(y.shape[1]):
-      y[:, d] = signal.filtfilt(b, a, y[:, d])
-      y[:, d] = signal.filtfilt(b, a, y[::-1, d])[::-1]
- 
+        y[:, d] = signal.filtfilt(b, a, y[:, d])
+        y[:, d] = signal.filtfilt(b, a, y[::-1, d])[::-1]
+
     return y
