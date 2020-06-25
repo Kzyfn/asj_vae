@@ -47,7 +47,6 @@ class VAE(nn.Module):
         self.fc11 = nn.Linear(
             acoustic_linguisic_dim + acoustic_dim, acoustic_linguisic_dim + acoustic_dim
         )
-        self.count = 0
 
         self.lstm1 = nn.LSTM(
             acoustic_linguisic_dim + acoustic_dim,
@@ -76,8 +75,6 @@ class VAE(nn.Module):
         x = torch.cat([linguistic_f, acoustic_f], dim=1)
         x = self.fc11(x)
         x = F.relu(x)
-        self.count += 1
-        print(self.count)
         out, hc = self.lstm1(x.view(x.size()[0], 1, -1))
         out_forward = out[:, :, :hidden_num][mora_index]
         mora_index_for_back = np.concatenate([[0], mora_index[:-1] + 1])
