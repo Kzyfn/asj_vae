@@ -98,11 +98,11 @@ def test(epoch, model, test_loader, loss_function):
 
             recon_batch, z_mu, z_unquantized_logvar = model(tmp[0], tmp[1], data[2], 0)
             test_loss += loss_function(
-                recon_batch, tmp[1], z_mu, z_unquantized_logvar
+                recon_batch, tmp[1][:, lf0_start_idx], z_mu, z_unquantized_logvar
             ).item()
             f0_loss += rmse(
                 recon_batch.cpu().numpy().reshape(-1,),
-                tmp[1].cpu().numpy().reshape(-1),
+                tmp[1][:, lf0_start_idx].cpu().numpy().reshape(-1),
             )
             del tmp
 
@@ -112,6 +112,14 @@ def test(epoch, model, test_loader, loss_function):
     print("====> Test set loss: {:.4f}".format(test_loss))
 
     return test_loss, f0_loss
+
+
+def smooth_f0(y):
+    ans = y.copy()
+    ans[:, lf0_start_idx] = trajectory_smoothing(
+        y[:, lf0_start_idx].reshape(-1, 1)
+    ).reshape(-1)
+    return ans
 
 
 def create_loader(test=False, batch_size=1):
@@ -192,10 +200,8 @@ def create_loader(test=False, batch_size=1):
         )
         for i in range(len(X["acoustic"]["train"]))
     ]
-    Y_acoustic_train = [
-        trajectory_smoothing(y[:, lf0_start_idx].reshape(-1, 1)).reshape(-1)
-        for y in Y["acoustic"]["train"]
-    ]
+
+    Y_acoustic_train = [smooth_f0(y) for y in Y["acoustic"]["train"]]
     # Y_acoustic_train = [scale(Y["acoustic"]["train"][i], Y_mean["acoustic"], Y_scale["acoustic"]) for i in range(len(Y["acoustic"]["train"]))]
     train_mora_index_lists = [
         train_mora_index_lists[i] for i in range(len(train_mora_index_lists))
@@ -210,10 +216,7 @@ def create_loader(test=False, batch_size=1):
         )
         for i in range(len(X["acoustic"]["test"]))
     ]
-    Y_acoustic_test = [
-        trajectory_smoothing(y[:, lf0_start_idx].reshape(-1, 1)).reshape(-1)
-        for y in Y["acoustic"]["test"]
-    ]
+    Y_acoustic_test = [smooth_f0(y) for y in Y["acoustic"]["test"]]
 
     # Y_acoustic_test = [scale(Y["acoustic"]["test"][i], Y_mean["acoustic"], Y_scale["acoustic"])for i in range(len(Y["acoustic"]["test"]))]
     test_mora_index_lists = [
