@@ -77,8 +77,9 @@ class VAE(nn.Module):
         self.count += 1
         print(self.count)
         out, hc = self.lstm1(x.view(x.size()[0], 1, -1))
-        if self.count == 1:
+        if self.count in [1, 251]:
             print(out)
+            print(out.dtype)
         # out_forward = out[:, :, :512][mora_index]
         # mora_index_for_back = np.concatenate([[0], mora_index[:-1] + 1])
         # out_back = out[:, :, 512:][mora_index_for_back]
