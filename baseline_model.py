@@ -211,6 +211,7 @@ def train(epoch):
 def test(epoch):
     model.eval()
     test_loss = 0
+    f0_loss = 0
     with torch.no_grad():
         for i, data, in enumerate(test_loader):
             tmp = []
@@ -220,24 +221,27 @@ def test(epoch):
 
             recon_batch = model(tmp[0])
             test_loss += loss_function(recon_batch, tmp[1]).item()
-
+            f0_loss += F.mse_loss(
+                recon_batch.view(-1, 199)[:, lf0_start_idx], tmp[1][:, lf0_start_idx]
+            ).item()
             del tmp
 
     test_loss /= len(test_loader)
     print("====> Test set loss: {:.4f}".format(test_loss))
 
-    return test_loss
+    return test_loss, f0_loss / len(test_loader)
 
 
 loss_list = []
 test_loss_list = []
+f0_loss_list = []
 num_epochs = 10
 
 # model.load_state_dict(torch.load('vae.pth'))
 
 for epoch in range(1, num_epochs + 1):
     loss = train(epoch)
-    test_loss = test(epoch)
+    test_loss, f0_loss = test(epoch)
     print(loss)
     print(test_loss)
 
@@ -250,11 +254,13 @@ for epoch in range(1, num_epochs + 1):
     # logging
     loss_list.append(loss)
     test_loss_list.append(test_loss)
+    f0_loss_list.apopend(f0_loss)
 
     if epoch % 5 == 0:
         torch.save(model.state_dict(), "baseline_lower/baseline_lower_{}.pth", epoch)
     np.save("baseline_lower/loss_list_baseline.npy", np.array(loss_list))
     np.save("baseline_lower/test_loss_list_baseline.npy", np.array(test_loss_list))
+    np.save("baseline_lower/test_f0loss_list_baseline.npy", np.array(f0_loss_list))
 
     print(time.time() - start)
 
