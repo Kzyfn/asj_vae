@@ -56,7 +56,7 @@ def train(epoch, model, train_loader, loss_function, optimizer, f0=False):
     for batch_idx, data in enumerate(train_loader):
         tmp = []
         for j in range(2):
-            tmp.append(torch.from_numpy(data[j]).type(torch.DoubleTensor).to(device))
+            tmp.append(torch.from_numpy(data[j]).to(device))
 
         optimizer.zero_grad()
         recon_batch, z_mu, z_unquantized_logvar = model(tmp[0], tmp[1], data[2], epoch)
@@ -96,7 +96,7 @@ def test(epoch, model, test_loader, loss_function):
             tmp = []
 
             for j in range(2):
-                tmp.append(torch.tensor(data[j]).type(torch.DoubleTensor).to(device))
+                tmp.append(torch.tensor(data[j]).to(device))
 
             recon_batch, z_mu, z_unquantized_logvar = model(tmp[0], tmp[1], data[2], 0)
             test_loss += loss_function(

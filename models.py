@@ -35,6 +35,8 @@ windows = [
 
 device = "cuda" if torch.cuda.is_available() else "cpu"
 
+hidden_num = 500
+
 
 class VAE(nn.Module):
     def __init__(self, num_layers, z_dim, bidirectional=True, dropout=0.15):
@@ -54,8 +56,8 @@ class VAE(nn.Module):
             bidirectional=bidirectional,
             dropout=dropout,
         )  # 入力サイズはここできまる
-        self.fc21 = nn.Linear(self.num_direction * 512, z_dim)
-        self.fc22 = nn.Linear(self.num_direction * 512, z_dim)
+        self.fc21 = nn.Linear(self.num_direction * hidden_num, z_dim)
+        self.fc22 = nn.Linear(self.num_direction * hidden_num, z_dim)
         ##ここまでエンコーダ
 
         self.fc12 = nn.Linear(
@@ -63,12 +65,12 @@ class VAE(nn.Module):
         )
         self.lstm2 = nn.LSTM(
             acoustic_linguisic_dim + z_dim,
-            512,
+            hidden_num,
             2,
             bidirectional=bidirectional,
             dropout=dropout,
         )
-        self.fc3 = nn.Linear(self.num_direction * 512, 1)
+        self.fc3 = nn.Linear(self.num_direction * hidden_num, 1)
 
     def encode(self, linguistic_f, acoustic_f, mora_index, batch_size=1):
         x = torch.cat([linguistic_f, acoustic_f], dim=1)
@@ -77,16 +79,10 @@ class VAE(nn.Module):
         self.count += 1
         print(self.count)
         out, hc = self.lstm1(x.view(x.size()[0], 1, -1))
-        if out.size()[0] != 1024:
-            out_forward = out[:, :, :512][mora_index]
-            mora_index_for_back = np.concatenate([[0], mora_index[:-1] + 1])
-            out_back = out[:, :, 512:][mora_index_for_back]
-            out = torch.cat([out_forward, out_back], dim=2)
-        else:
-            out_forward = out.view(-1, 1024)[:, :512][mora_index].view(-1, 1, 512)
-            mora_index_for_back = np.concatenate([[0], mora_index[:-1] + 1])
-            out_back = out.view(-1, 1024)[:, 512:][mora_index_for_back].view(-1, 1, 512)
-            out = torch.cat([out_forward, out_back], dim=2)
+        out_forward = out[:, :, :hidden_num][mora_index]
+        mora_index_for_back = np.concatenate([[0], mora_index[:-1] + 1])
+        out_back = out[:, :, hidden_num:][mora_index_for_back]
+        out = torch.cat([out_forward, out_back], dim=2)
 
         h1 = F.relu(out)
 
@@ -150,12 +146,12 @@ class VQVAE(nn.Module):
         )
         self.lstm1 = nn.LSTM(
             acoustic_linguisic_dim + acoustic_dim,
-            512,
+            hidden_num,
             num_layers,
             bidirectional=bidirectional,
             dropout=dropout,
         )  # 入力サイズはここできまる
-        self.fc2 = nn.Linear(self.num_direction * 512, z_dim)
+        self.fc2 = nn.Linear(self.num_direction * hidden_num, z_dim)
         ##ここまでエンコーダ
 
         self.fc12 = nn.Linear(
@@ -168,7 +164,7 @@ class VQVAE(nn.Module):
             bidirectional=bidirectional,
             dropout=dropout,
         )
-        self.fc3 = nn.Linear(self.num_direction * 512, 1)
+        self.fc3 = nn.Linear(self.num_direction * hidden_num, 1)
 
     def choose_quantized_vector(self, z, epoch):  # zはエンコーダの出力
         error = torch.sum((self.quantized_vectors.weight - z) ** 2, dim=1)
@@ -193,9 +189,9 @@ class VQVAE(nn.Module):
         x = self.fc11(x)
         x = F.relu(x)
         out, hc = self.lstm1(x.view(x.size()[0], 1, -1))
-        out_forward = out[:, :, :512][mora_index]
+        out_forward = out[:, :, :hidden_num][mora_index]
         mora_index_for_back = np.concatenate([[0], mora_index[:-1] + 1])
-        out_back = out[:, :, 512:][mora_index_for_back]
+        out_back = out[:, :, hidden_num:][mora_index_for_back]
         out = torch.cat([out_forward, out_back], dim=2)
 
         h1 = F.relu(out)
