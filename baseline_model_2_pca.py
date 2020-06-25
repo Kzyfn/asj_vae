@@ -85,9 +85,44 @@ for ty in ["acoustic"]:
         )
         utt_lengths[ty][phase] = np.array([len(x) for x in X[ty][phase]], dtype=np.int)
 
+X_min = {}
+X_max = {}
+Y_mean = {}
+Y_var = {}
+Y_scale = {}
+
+for typ in ["acoustic"]:
+    X_min[typ], X_max[typ] = minmax(X["acoustic"]["train"], utt_lengths[typ]["train"])
+    Y_mean[typ], Y_var[typ] = meanvar(Y[typ]["train"], utt_lengths[typ]["train"])
+    Y_scale[typ] = np.sqrt(Y_var[typ])
+
+
+X_acoustic_train = [
+    minmax_scale(x, X_min["acoustic"], X_max["acoustic"], feature_range=(0.01, 0.99))
+    for x in X["acoustic"]["train"]
+]
+Y_acoustic_train = [
+    y
+    for y in Y["acoustic"][
+        "train"
+    ]  # scale(y, Y_mean["acoustic"], Y_scale["acoustic"]) for y in Y["acoustic"]["train"]
+]
+
+
+X_acoustic_test = [
+    minmax_scale(x, X_min["acoustic"], X_max["acoustic"], feature_range=(0.01, 0.99))
+    for x in X["acoustic"]["test"]
+]
+Y_acoustic_test = [
+    y
+    for y in Y["acoustic"][
+        "test"
+    ]  # scale(y, Y_mean["acoustic"], Y_scale["acoustic"]) for y in Y["acoustic"]["test"]
+]
+
 accent_info_train_ = [
     np.concatenate([x[:, 285:335], x[:, 488:531]], axis=1).reshape(-1, 93)
-    for x in X["acoustic"]["train"]
+    for x in X_acoustic_train
 ]
 
 accent_info_train = []
@@ -99,21 +134,22 @@ accent_info_train = np.array(accent_info_train)
 
 pca = PCA(whiten=True)
 pca.fit(accent_info_train)
+print(pca.explained_variance_ratio_.cumsum())
 
 compressed_accent_info_train = [
     pca.fit_transform(np.concatenate([x[:, 285:335], x[:, 488:531]], axis=1))
-    for x in X["acoustic"]["train"]
+    for x in X_acoustic_train
 ]
 compressed_accent_info_test = [
     pca.fit_transform(np.concatenate([x[:, 285:335], x[:, 488:531]], axis=1))
-    for x in X["acoustic"]["test"]
+    for x in X_acoustic_test
 ]
 
 x_train = []
 x_test = []
 
-for i in range(len(X["acoustic"]["train"])):
-    x = X["acoustic"]["train"][i]
+for i in range(len(X_acoustic_train)):
+    x = X_acoustic_train[i]
     x_train.append(
         np.concatenate(
             [
@@ -126,8 +162,8 @@ for i in range(len(X["acoustic"]["train"])):
         )
     )
 
-for i in range(len(X["acoustic"]["test"])):
-    x = X["acoustic"]["test"][i]
+for i in range(len(X_acoustic_test)):
+    x = X_acoustic_test[i]
     x_test.append(
         np.concatenate(
             [
@@ -139,22 +175,6 @@ for i in range(len(X["acoustic"]["test"])):
             axis=1,
         )
     )
-
-
-"""
-ここでH/L ラベルをつける処理
-"""
-
-X_min = {}
-X_max = {}
-Y_mean = {}
-Y_var = {}
-Y_scale = {}
-
-for typ in ["acoustic"]:
-    X_min[typ], X_max[typ] = minmax(x_train, utt_lengths[typ]["train"])
-    Y_mean[typ], Y_var[typ] = meanvar(Y[typ]["train"], utt_lengths[typ]["train"])
-    Y_scale[typ] = np.sqrt(Y_var[typ])
 
 
 from torch.utils import data as data_utils
@@ -223,30 +243,6 @@ def loss_function(recon_x, x):
     # print(BCE)
 
     return MSE
-
-
-X_acoustic_train = [
-    minmax_scale(x, X_min["acoustic"], X_max["acoustic"], feature_range=(0.01, 0.99))
-    for x in x_train
-]
-Y_acoustic_train = [
-    y
-    for y in Y["acoustic"][
-        "train"
-    ]  # scale(y, Y_mean["acoustic"], Y_scale["acoustic"]) for y in Y["acoustic"]["train"]
-]
-
-
-X_acoustic_test = [
-    minmax_scale(x, X_min["acoustic"], X_max["acoustic"], feature_range=(0.01, 0.99))
-    for x in x_test
-]
-Y_acoustic_test = [
-    y
-    for y in Y["acoustic"][
-        "test"
-    ]  # scale(y, Y_mean["acoustic"], Y_scale["acoustic"]) for y in Y["acoustic"]["test"]
-]
 
 
 train_loader = [[x, y] for x, y in zip(X_acoustic_train, Y_acoustic_train)]
