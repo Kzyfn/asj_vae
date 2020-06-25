@@ -6,7 +6,7 @@ from os.path import join
 from nnmnkwii.preprocessing import minmax, meanvar, minmax_scale, scale
 import torch
 import torch.nn.functional as F
-import scipy
+from scipy import signal
 import copy
 
 from models import BinaryFileSource
