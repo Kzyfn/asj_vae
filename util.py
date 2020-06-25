@@ -153,13 +153,16 @@ def create_loader(test=False, batch_size=1):
 
     pd.DataFrame(
         {
-            "x_max": X_max["acoustic"],
-            "x_min": X_min["acoustic"],
-            "y_mean": Y_mean["acoustic"],
-            "y_var": Y_var["acoustic"],
-            "y_scale": Y_scale["acoustic"],
+            "max": X_max["acoustic"],
+            "min": X_min["acoustic"],
         }
-    ).to_csv("data/stats.csv", index=None)
+    ).to_csv("data/x_stats.csv", index=None)
+
+    pd.DataFrame({}
+            "mean": Y_mean["acoustic"],
+            "var": Y_var["acoustic"],
+            "scale": Y_scale["acoustic"],
+    })
 
     mora_index_lists = sorted(glob(join("data/basic5000/mora_index", "squeezed_*.csv")))
     mora_index_lists_for_model = [
