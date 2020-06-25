@@ -243,6 +243,8 @@ def train(epoch):
             prev_index = 0 if j == 0 else int(train_mora_index_lists[i][j - 1])
             h_l_label_tensor[prev_index : int(mora_i)] = tmp[2][j]
 
+        h_l_label_tensor[(data[0][:, 97] - 0.01).nonzero()[0]] = 0
+
         x = torch.cat([tmp[0].float(), h_l_label_tensor.float().view(-1, 1)], dim=1)
         optimizer.zero_grad()
         recon_batch = model(x)
