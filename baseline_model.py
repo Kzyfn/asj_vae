@@ -251,6 +251,8 @@ for epoch in range(1, num_epochs + 1):
     loss_list.append(loss)
     test_loss_list.append(test_loss)
 
+    if epoch % 5 == 0:
+        torch.save(model.state_dict(), "baseline_lower/baseline_lower_{}.pth", epoch)
     np.save("baseline_lower/loss_list_baseline.npy", np.array(loss_list))
     np.save("baseline_lower/test_loss_list_baseline.npy", np.array(test_loss_list))
 
