@@ -35,7 +35,7 @@ windows = [
 
 device = "cuda" if torch.cuda.is_available() else "cpu"
 
-hidden_num = 512
+hidden_num = 511
 
 
 class VAE(nn.Module):
@@ -79,24 +79,10 @@ class VAE(nn.Module):
         self.count += 1
         print(self.count)
         out, hc = self.lstm1(x.view(x.size()[0], 1, -1))
-        if linguistic_f.size()[0] == 1024:
-            out_first = out[:500]
-            our_second = out[500:]
-            out_first_forward = out_first[:, :, :hidden_num][mora_index]
-            out_second_forward = our_second[:, :, :hidden_num][mora_index]
-            out_forward = torch.cat([out_first_forward, out_second_forward])
-
-            mora_index_for_back = np.concatenate([[0], mora_index[:-1] + 1])
-            out_first_back = out_first[:, :, hidden_num:][mora_index_for_back]
-            out_second_back = our_second[:, :, hidden_num:][mora_index_for_back]
-            out_back = torch.cat([out_first_back, out_second_back])
-
-            out = torch.cat([out_forward, out_back], dim=2)
-        else:
-            out_forward = out[:, :, :hidden_num][mora_index]
-            mora_index_for_back = np.concatenate([[0], mora_index[:-1] + 1])
-            out_back = out[:, :, hidden_num:][mora_index_for_back]
-            out = torch.cat([out_forward, out_back], dim=2)
+        out_forward = out[:, :, :hidden_num][mora_index]
+        mora_index_for_back = np.concatenate([[0], mora_index[:-1] + 1])
+        out_back = out[:, :, hidden_num:][mora_index_for_back]
+        out = torch.cat([out_forward, out_back], dim=2)
 
         h1 = F.relu(out)
 
