@@ -85,9 +85,8 @@ class VAE(nn.Module):
         else:
             out_forward = out.view(-1, 1024)[:, :512][mora_index].view(-1, 1, 512)
             mora_index_for_back = np.concatenate([[0], mora_index[:-1] + 1])
-            out_back = out.view(-1, 1024)[:, 512:]mora_index_for_back].view(-1, 1, 512)
+            out_back = out.view(-1, 1024)[:, 512:][mora_index_for_back].view(-1, 1, 512)
             out = torch.cat([out_forward, out_back], dim=2)
-
 
         h1 = F.relu(out)
 
