@@ -67,7 +67,7 @@ class VAE(nn.Module):
             bidirectional=bidirectional,
             dropout=dropout,
         )
-        self.fc3 = nn.Linear(self.num_direction * 512, acoustic_dim)
+        self.fc3 = nn.Linear(self.num_direction * 512, 1)
 
     def encode(self, linguistic_f, acoustic_f, mora_index, batch_size=1):
         x = torch.cat([linguistic_f, acoustic_f], dim=1)
@@ -160,7 +160,7 @@ class VQVAE(nn.Module):
             bidirectional=bidirectional,
             dropout=dropout,
         )
-        self.fc3 = nn.Linear(self.num_direction * 512, acoustic_dim)
+        self.fc3 = nn.Linear(self.num_direction * 512, 1)
 
     def choose_quantized_vector(self, z, epoch):  # zはエンコーダの出力
         error = torch.sum((self.quantized_vectors.weight - z) ** 2, dim=1)
@@ -250,7 +250,7 @@ class Rnn(nn.Module):
         self.lstm2 = nn.LSTM(
             acoustic_linguisic_dim_, 512, num_layers, bidirectional=bidirectional
         )
-        self.fc3 = nn.Linear(self.num_direction * 512, acoustic_dim)
+        self.fc3 = nn.Linear(self.num_direction * 512, 1)
 
     def decode(self, linguistic_features):
         x = linguistic_features.view(linguistic_features.size()[0], 1, -1)
