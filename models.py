@@ -172,8 +172,11 @@ class VQVAE(nn.Module):
         z = torch.zeros(z_unquantized.size(), requires_grad=True).to(device)
 
         for i in range(z_unquantized.size()[0]):
-            z[i] = z_unquantized[i] + self.choose_quantized_vector(z_unquantized[i].reshape(-1), epoch)
+            z[i] = (
+                z_unquantized[i]
+                + self.choose_quantized_vector(z_unquantized[i].reshape(-1), epoch)
                 - z_unquantized[i].detach()
+            )
 
         return z
 
