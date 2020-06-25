@@ -60,14 +60,16 @@ def train(epoch, model, train_loader, loss_function, optimizer, f0=False):
 
         optimizer.zero_grad()
         recon_batch, z_mu, z_unquantized_logvar = model(tmp[0], tmp[1], data[2], epoch)
-        loss = loss_function(recon_batch, tmp[1], z_mu, z_unquantized_logvar)
+        loss = loss_function(
+            recon_batch, tmp[1][:, lf0_start_idx], z_mu, z_unquantized_logvar
+        )
         loss.backward()
         train_loss += loss.item()
         if f0:
             with torch.no_grad():
                 f0_loss += rmse(
                     recon_batch.detach().cpu().numpy().reshape(-1,),
-                    tmp[1].detach().cpu().numpy().reshape(-1),
+                    tmp[1][:, lf0_start_idx].detach().cpu().numpy().reshape(-1),
                 )
         optimizer.step()
         del tmp
