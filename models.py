@@ -51,7 +51,7 @@ class VAE(nn.Module):
 
         self.lstm1 = nn.LSTM(
             acoustic_linguisic_dim + acoustic_dim,
-            512,
+            hidden_num,
             num_layers,
             bidirectional=bidirectional,
             dropout=dropout,
@@ -159,7 +159,7 @@ class VQVAE(nn.Module):
         )
         self.lstm2 = nn.LSTM(
             acoustic_linguisic_dim + z_dim,
-            512,
+            hidden_num,
             num_layers,
             bidirectional=bidirectional,
             dropout=dropout,
