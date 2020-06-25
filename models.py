@@ -121,7 +121,7 @@ class VAE(nn.Module):
 
 class VQVAE(nn.Module):
     def __init__(
-        self, bidirectional=True, num_layers=2, num_class=2, z_dim=1, dropout=0.3
+        self, bidirectional=True, num_layers=2, num_class=2, z_dim=1, dropout=0.15
     ):
         super(VQVAE, self).__init__()
         self.num_layers = num_layers
@@ -172,11 +172,8 @@ class VQVAE(nn.Module):
         z = torch.zeros(z_unquantized.size(), requires_grad=True).to(device)
 
         for i in range(z_unquantized.size()[0]):
-            z[i] = z_unquantized[i]
-            +(
-                self.choose_quantized_vector(z_unquantized[i].reshape(-1), epoch)
-                - z_unquantized[i]
-            ).detach()
+            z[i] = z_unquantized[i] + self.choose_quantized_vector(z_unquantized[i].reshape(-1), epoch)
+                - z_unquantized[i].detach()
 
         return z
 
