@@ -231,7 +231,7 @@ def test(epoch):
 
 loss_list = []
 test_loss_list = []
-num_epochs = 20
+num_epochs = 10
 
 # model.load_state_dict(torch.load('vae.pth'))
 
