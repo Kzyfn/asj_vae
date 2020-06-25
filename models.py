@@ -75,10 +75,10 @@ class VAE(nn.Module):
         x = F.relu(x)
 
         out, hc = self.lstm1(x.view(x.size()[0], 1, -1))
-        out_forward = out[:, :, :512][mora_index]
-        mora_index_for_back = np.concatenate([[0], mora_index[:-1] + 1])
-        out_back = out[:, :, 512:][mora_index_for_back]
-        out = torch.cat([out_forward, out_back], dim=2)
+        # out_forward = out[:, :, :512][mora_index]
+        # mora_index_for_back = np.concatenate([[0], mora_index[:-1] + 1])
+        # out_back = out[:, :, 512:][mora_index_for_back]
+        out = out[mora_index]  # torch.cat([out_forward, out_back], dim=2)
 
         h1 = F.relu(out)
 
