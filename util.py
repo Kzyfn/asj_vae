@@ -7,7 +7,8 @@ from nnmnkwii.preprocessing import minmax, meanvar, minmax_scale, scale
 import torch
 import torch.nn.functional as F
 from scipy import signal
-import copy
+import copys
+import pandas as import pd
 
 from models import BinaryFileSource
 from loss_func import calc_lf0_rmse, rmse
@@ -65,11 +66,8 @@ def train(epoch, model, train_loader, loss_function, optimizer, f0=False):
         if f0:
             with torch.no_grad():
                 f0_loss += rmse(
-                    recon_batch.detach()
-                    .cpu()
-                    .numpy()
-                    .reshape(-1, 199)[:, lf0_start_idx],
-                    tmp[1].detach().cpu().numpy()[:, lf0_start_idx].reshape(-1),
+                    recon_batch.detach().cpu().numpy().reshape(-1,),
+                    tmp[1].detach().cpu().numpy().reshape(-1),
                 )
         optimizer.step()
         del tmp
@@ -98,13 +96,13 @@ def test(epoch, model, test_loader, loss_function):
             for j in range(2):
                 tmp.append(torch.tensor(data[j]).to(device))
 
-            recon_batch, z_mu, z_unquantized_logvar = model(tmp[0], tmp[1], data[2], 5)
+            recon_batch, z_mu, z_unquantized_logvar = model(tmp[0], tmp[1], data[2], 0)
             test_loss += loss_function(
                 recon_batch, tmp[1], z_mu, z_unquantized_logvar
             ).item()
             f0_loss += rmse(
-                recon_batch.cpu().numpy().reshape(-1, 199)[:, lf0_start_idx],
-                tmp[1].cpu().numpy()[:, lf0_start_idx].reshape(-1),
+                recon_batch.cpu().numpy().reshape(-1,),
+                tmp[1].cpu().numpy().reshape(-1),
             )
             del tmp
 
@@ -153,6 +151,17 @@ def create_loader(test=False, batch_size=1):
         Y_mean[typ], Y_var[typ] = meanvar(Y[typ]["train"], utt_lengths[typ]["train"])
         Y_scale[typ] = np.sqrt(Y_var[typ])
 
+    pd.DataFrame(
+        {
+            "x_max": X_max["acoustic"],
+            "x_min": X_min["acoustic"],
+            "y_mean": Y_mean["acoustic"],
+            "y_var": Y_var["acoustic"],
+            "y_scale": Y_scale["acoustic"],
+        }
+    ).to_csv("data/stats.csv", index=None)
+
+
     mora_index_lists = sorted(glob(join("data/basic5000/mora_index", "squeezed_*.csv")))
     mora_index_lists_for_model = [
         np.loadtxt(path).reshape(-1) for path in mora_index_lists
@@ -182,7 +191,10 @@ def create_loader(test=False, batch_size=1):
         )
         for i in range(len(X["acoustic"]["train"]))
     ]
-    Y_acoustic_train = [trajectory_smoothing(y) for y in Y["acoustic"]["train"]]
+    Y_acoustic_train = [
+        trajectory_smoothing(y[:, lf0_start_idx].reshape(-1, 1)).reshape(-1)
+        for y in Y["acoustic"]["train"]
+    ]
     # Y_acoustic_train = [scale(Y["acoustic"]["train"][i], Y_mean["acoustic"], Y_scale["acoustic"]) for i in range(len(Y["acoustic"]["train"]))]
     train_mora_index_lists = [
         train_mora_index_lists[i] for i in range(len(train_mora_index_lists))
@@ -197,10 +209,11 @@ def create_loader(test=False, batch_size=1):
         )
         for i in range(len(X["acoustic"]["test"]))
     ]
-    Y_acoustic_test = [trajectory_smoothing(y) for y in Y["acoustic"]["test"]]
+    Y_acoustic_test = [
+        trajectory_smoothing(y[:, lf0_start_idx].reshape(-1, 1)).reshape(-1)
+        for y in Y["acoustic"]["test"]
+    ]
 
-    print(Y_acoustic_test[0][:, lf0_start_idx])
-    print(Y["acoustic"]["train"][0][:, lf0_start_idx])
     # Y_acoustic_test = [scale(Y["acoustic"]["test"][i], Y_mean["acoustic"], Y_scale["acoustic"])for i in range(len(Y["acoustic"]["test"]))]
     test_mora_index_lists = [
         test_mora_index_lists[i] for i in range(len(test_mora_index_lists))
@@ -242,3 +255,41 @@ def trajectory_smoothing(x, thresh=0.1):
         y[:, d] = signal.filtfilt(b, a, y[::-1, d])[::-1]
 
     return y
+
+
+def num2str(num):
+    return "0" * (4 - len(num + 1)) + str(num + 1)
+
+
+def test_loader():
+    DATA_ROOT = "./data/basic5000"
+    indicies = list(range(1, 5000, 20))
+
+    y_paths = [
+        join(DATA_ROOT, "Y_acoustic/BASIC_{}.bin".format(num2str(i))) for i in indicies
+    ]
+    x_paths = [
+        join(DATA_ROOT, "Y_acoustic/BASIC_{}.bin".format(num2str(i))) for i in indicies
+    ]
+    mora_paths = [
+        join(DATA_ROOT, "mora_index/squeezed_mora_index_{}.csv".format(num2str(i)))
+        for i in indicies
+    ]
+
+    y_data = [np.fromfile(path, dtype=np.float32) for path in y_paths]
+    x_data = [np.fromfile(path, dtype=np.float32) for path in x_paths]
+    mora_indices = [np.loadtxt(path) for path in mora_paths]
+
+    stats = pd.read_csv('data/stats.csv')
+
+    ans = [
+        [
+            minmax_scale(
+                x, stats["x_min"], stats["x_max"], feature_range=(0.01, 0.99)
+            ),
+            trajectory_smoothing(y[:, lf0_start_idx].reshape(-1, 1)).reshape(-1),
+            mora_i,
+        ]
+        for x, y, mora_i in zip(x_data, y_data, mora_indices)
+    ]
+
