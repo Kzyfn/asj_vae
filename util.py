@@ -151,18 +151,17 @@ def create_loader(test=False, batch_size=1):
         Y_mean[typ], Y_var[typ] = meanvar(Y[typ]["train"], utt_lengths[typ]["train"])
         Y_scale[typ] = np.sqrt(Y_var[typ])
 
+    pd.DataFrame({"max": X_max["acoustic"], "min": X_min["acoustic"],}).to_csv(
+        "data/x_stats.csv", index=None
+    )
+
     pd.DataFrame(
         {
-            "max": X_max["acoustic"],
-            "min": X_min["acoustic"],
-        }
-    ).to_csv("data/x_stats.csv", index=None)
-
-    pd.DataFrame({}
             "mean": Y_mean["acoustic"],
             "var": Y_var["acoustic"],
             "scale": Y_scale["acoustic"],
-    })
+        }
+    )
 
     mora_index_lists = sorted(glob(join("data/basic5000/mora_index", "squeezed_*.csv")))
     mora_index_lists_for_model = [
