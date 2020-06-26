@@ -23,8 +23,8 @@ def train_vae(args, trial=None, test_ratio=1):
     if args["model_path"] != "":
         model.load_state_dict(torch.load(args["model_path"]))
 
-    optimizer = optim.Adam(model.parameters(), lr=2e-4)  # 1e-3
-
+    optimizer = optim.Adam(model.parameters(), lr=1e-3)  # 1e-3
+    scheduler = optim.lr_scheduler.StepLR(optimizer, step_size=3, gamma=0.5)
     train_loader, test_loader = create_loader()
     train_num = int(args["train_ratio"] * len(train_loader))  # 1
     test_num = int(test_ratio * len(test_loader))
@@ -41,7 +41,7 @@ def train_vae(args, trial=None, test_ratio=1):
             epoch, model, train_loader, vae_loss, optimizer, f0=True
         )
         test_loss, f0_loss = test(epoch, model, test_loader, vae_loss)
-
+        scheduler.step()
         print(
             "epoch [{}/{}], loss: {:.4f} test_loss: {:.4f}".format(
                 epoch + 1, args["num_epoch"], loss, test_loss
