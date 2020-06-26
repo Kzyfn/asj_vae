@@ -31,11 +31,11 @@ def train_vqvae(args, trial=None):
     else:
         lbg = LBG(num_class=args["num_class"], z_dim=args["z_dim"])
         # zを用意
-        sampled_indices = random.sample(list(range(len(train_loader))), 100)
+        sampled_indices = random.sample(list(range(len(train_loader))), 500)
         z = torch.tensor([[0.0] * args["z_dim"]]).to(device)
 
         print("コードブックを初期化")
-        for index in tqdm(range(len(train_loader))):
+        for index in tqdm(sampled_indices):
             data = train_loader[index]
             with torch.no_grad():
                 z_tmp = model.encode(
