@@ -299,7 +299,7 @@ class LBG:
     def __init__(self, num_class=2, z_dim=8):
         self.num_class = num_class
         self.z_dim = z_dim
-        self.eps = np.array([1e-1] * z_dim)
+        self.eps = np.array([1e-2] * z_dim)
 
     def calc_center(self, x):
         vectors = x.view(-1, self.z_dim)
