@@ -22,7 +22,7 @@ def objective(trial):
         args.output_dir = args.output_dir[: args.output_dir.index("/")]
 
     if args.quantized:
-        num_class = args["num_class"]  # trial.suggest_int("num_class", 2 , 4)
+        num_class = argsnum_class  # trial.suggest_int("num_class", 2 , 4)
         args.num_class = num_class
         output_dir_path = join(
             args.output_dir, "{}layers_zdim{}_nc{}".format(num_layers, z_dim, num_class)
