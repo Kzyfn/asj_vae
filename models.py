@@ -224,7 +224,7 @@ class VQVAE(nn.Module):
             dim=1,
         )
 
-        x = self.fc12(x)
+        x = self.fc12(x.view(x.size()[0], 1, -1))
         x = F.relu(x)
 
         h3, (h, c) = self.lstm2(x)
