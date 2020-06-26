@@ -22,8 +22,8 @@ def train_vae(args, trial=None, test_ratio=1):
     model = VAE(args["num_layers"], args["z_dim"]).to(device)
     if args["model_path"] != "":
         model.load_state_dict(torch.load(args["model_path"]))
-
-    optimizer = optim.Adam(model.parameters(), lr=2e-4)  # 1e-3
+    model.load_state_dict("vae_2_8/2layers_zdim8/vae_model_15.pth")
+    optimizer = optim.Adam(model.parameters(), lr=1e-5)  # 1e-3
 
     train_loader, test_loader = create_loader()
     train_num = int(args["train_ratio"] * len(train_loader))  # 1
