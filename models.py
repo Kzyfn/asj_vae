@@ -224,10 +224,10 @@ class VQVAE(nn.Module):
             dim=1,
         )
 
-        x = self.fc12(x.view(x.size()[0], 1, -1))
+        x = self.fc12(x)
         x = F.relu(x)
 
-        h3, (h, c) = self.lstm2(x)
+        h3, (h, c) = self.lstm2(x.view(x.size()[0], 1, -1))
         h3 = F.relu(h3)
 
         return self.fc3(h3)  # torch.sigmoid(self.fc3(h3))
