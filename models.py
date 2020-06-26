@@ -60,10 +60,10 @@ class VAE(nn.Module):
         ##ここまでエンコーダ
 
         self.fc12 = nn.Linear(
-            acoustic_linguisic_dim + z_dim*93, acoustic_linguisic_dim + z_dim*93
+            acoustic_linguisic_dim + z_dim * 93, acoustic_linguisic_dim + z_dim * 93
         )
         self.lstm2 = nn.LSTM(
-            acoustic_linguisic_dim + z_dim*93,
+            acoustic_linguisic_dim + z_dim * 93,
             hidden_num,
             2,
             bidirectional=bidirectional,
@@ -102,7 +102,13 @@ class VAE(nn.Module):
             prev_index = 0 if i == 0 else int(mora_index[i - 1])
             z_tmp[prev_index : int(mora_i)] = z[i]
 
-        x = torch.cat([linguistic_features, z_tmp.view(-1, self.z_dim).repeat_interleave(93, dim=1)], dim=1)
+        x = torch.cat(
+            [
+                linguistic_features,
+                z_tmp.view(-1, self.z_dim).repeat_interleave(93, dim=1),
+            ],
+            dim=1,
+        )
         x = self.fc12(x)
         x = F.relu(x)
 
@@ -326,12 +332,7 @@ class LBG:
 
         for i in range(int(np.log2(self.num_class)) - 1):
             rep_vecs = np.concatenate([rep_vecs + self.eps, rep_vecs - self.eps])
-<<<<<<< HEAD
-
-            kmeans = KMeans(n_clusters=2 ** (i + 2), init=rep_vecs, n_init=1).fit(data)
-=======
             kmeans = KMeans(n_clusters=2 ** (i + 2), init=rep_vecs)
->>>>>>> 8d3fa9a4bc6fb1fec14155a310cc30748fc32c5f
             rep_vecs = kmeans.cluster_centers_
 
         return rep_vecs
