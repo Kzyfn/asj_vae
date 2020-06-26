@@ -147,7 +147,7 @@ class Rnn(nn.Module):
         self.num_layers = num_layers
         self.num_direction = 2 if bidirectional else 1
         ##ここまでエンコーダ
-        acoustic_linguisic_dim_ = 442 + 1
+        acoustic_linguisic_dim_ = 442 + 1*93
         self.fc11 = nn.Linear(
             acoustic_linguisic_dim_, acoustic_linguisic_dim_
         )  # acoustic_linguisic_dim_)
@@ -180,8 +180,9 @@ class Rnn(nn.Module):
 device = "cuda"
 model = Rnn().to(device)
 # model.load_state_dict(torch.load("baseline2/baseline.pth"))
-optimizer = optim.Adam(model.parameters(), lr=2e-4, weight_decay=2.8e-9)  # 1e-3
-
+optimizer = optim.Adam(model.parameters(), lr=1e-3, weight_decay=2.8e-9)  # 1e-3
+scheduler = optim.lr_scheduler.StepLR(optimizer, step_size=3, gamma=0.5)
+    
 start = time.time()
 
 # Reconstruction + KL divergence losses summed over all elements and batch
@@ -246,7 +247,7 @@ def train(epoch):
         tmp = []
 
         for j in range(3):
-            tmp.append(torch.from_numpy(data[j]).to(device))
+            tmp.append(torch.from_numpy(data[j]).float().to(device))
 
         h_l_label_tensor = torch.tensor([0.] * data[0].shape[0]).to(device)
         for j, mora_i in enumerate(train_mora_index_lists[i]):
@@ -263,6 +264,7 @@ def train(epoch):
         loss.backward()
         train_loss += loss.item()
         optimizer.step()
+        scheduler.step()
         del tmp
         if i % 4945 == 0:
             print(
@@ -344,14 +346,14 @@ for epoch in range(1, num_epochs + 1):
     if epoch % 5 == 0:
         torch.save(model.state_dict(), "baseline2/baseline_{}.pth".format(epoch))
 
-    np.save("baseline2/loss_list_baseline.npy", np.array(loss_list))
-    np.save("baseline2/test_loss_list_baseline.npy", np.array(test_loss_list))
-    np.save("baseline2/test_f0loss_list_baseline.npy", f0_loss_list)
+    np.save("baseline2_93dim/loss_list_baseline.npy", np.array(loss_list))
+    np.save("baseline2_93dim/test_loss_list_baseline.npy", np.array(test_loss_list))
+    np.save("baseline2_93dim/test_f0loss_list_baseline.npy", f0_loss_list)
 
     print(time.time() - start)
 
 # save the training model
-np.save("baseline2/loss_list_baseline.npy", np.array(loss_list))
-np.save("baseline2/test_loss_list_baseline.npy", np.array(test_loss_list))
-torch.save(model.state_dict(), "baseline2/baseline.pth")
+np.save("baseline2_93dim/loss_list_baseline.npy", np.array(loss_list))
+np.save("baseline2_93dim/test_loss_list_baseline.npy", np.array(test_loss_list))
+torch.save(model.state_dict(), "baseline2_93dim/baseline.pth")
 

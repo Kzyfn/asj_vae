@@ -144,7 +144,8 @@ import pandas as pd
 
 device = "cuda"
 model = Rnn().to(device)
-optimizer = optim.Adam(model.parameters(), lr=2e-4)  # 1e-3
+model.load_state_dict(torch.load('baseline_lower/baseline_f0.pth'))
+optimizer = optim.Adam(model.parameters(), lr=5e-4)  # 1e-3
 
 start = time.time()
 
@@ -183,7 +184,7 @@ def train(epoch):
         tmp = []
 
         for j in range(2):
-            tmp.append(torch.from_numpy(data[j]).to(device))
+            tmp.append(torch.from_numpy(data[j]).float().to(device))
 
         optimizer.zero_grad()
         recon_batch = model(tmp[0])
@@ -221,7 +222,7 @@ def test(epoch):
             tmp = []
 
             for j in range(2):
-                tmp.append(torch.from_numpy(data[j]).to(device))
+                tmp.append(torch.from_numpy(data[j]).float().to(device))
 
             recon_batch = model(tmp[0])
             test_loss += loss_function(recon_batch, tmp[1]).item()
@@ -260,18 +261,17 @@ for epoch in range(1, num_epochs + 1):
     test_loss_list.append(test_loss)
     f0_loss_list.append(f0_loss)
 
-    if epoch % 5 == 0:
-        torch.save(
-            model.state_dict(), "baseline_lower/baseline_lowerf0_{}.pth".format(epoch)
-        )
-    np.save("baseline_lower/loss_list_f0.npy", np.array(loss_list))
-    np.save("baseline_lower/test_loss_list_f0.npy", np.array(test_loss_list))
-    np.save("baseline_lower/test_f0loss_list_f0.npy", np.array(f0_loss_list))
+    torch.save(
+        model.state_dict(), "baseline_lower/baseline_lowerf0_{}.pth".format(epoch+10)
+    )
+    np.save("baseline_lower/loss_list_f0_2.npy", np.array(loss_list))
+    np.save("baseline_lower/test_loss_list_f0_2.npy", np.array(test_loss_list))
+    np.save("baseline_lower/test_f0loss_list_f0_2.npy", np.array(f0_loss_list))
 
     print(time.time() - start)
 
 # save the training model
-np.save("baseline_lower/loss_list_f0.npy", np.array(loss_list))
-np.save("baseline_lower/test_loss_list_f0.npy", np.array(test_loss_list))
-torch.save(model.state_dict(), "baseline_lower/baseline_f0.pth")
+np.save("baseline_lower/loss_list_f0_2.npy", np.array(loss_list))
+np.save("baseline_lower/test_loss_list_f0_2.npy", np.array(test_loss_list))
+torch.save(model.state_dict(), "baseline_lower/baseline_f0_2.pth")
 
