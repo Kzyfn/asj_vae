@@ -309,9 +309,7 @@ def test(epoch):
                 h_l_label_tensor.float().view(-1, 1).repeat_interleave(93, dim=1)
             )
 
-            recon_batch = model(
-                torch.cat([tmp[0].float(), h_l_label_tensor.float().view(-1, 1)], dim=1)
-            )
+            recon_batch = model(torch.cat([tmp[0].float(), h_l_label_tensor], dim=1))
             test_loss += loss_function(recon_batch, tmp[1]).item()
             f0_loss += rmse(recon_batch.cpu().numpy(), tmp[1].cpu().numpy()).item()
 
