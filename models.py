@@ -60,10 +60,10 @@ class VAE(nn.Module):
         ##ここまでエンコーダ
 
         self.fc12 = nn.Linear(
-            acoustic_linguisic_dim + z_dim, acoustic_linguisic_dim + z_dim
+            acoustic_linguisic_dim + z_dim*93, acoustic_linguisic_dim + z_dim*93
         )
         self.lstm2 = nn.LSTM(
-            acoustic_linguisic_dim + z_dim,
+            acoustic_linguisic_dim + z_dim*93,
             hidden_num,
             2,
             bidirectional=bidirectional,
@@ -102,7 +102,7 @@ class VAE(nn.Module):
             prev_index = 0 if i == 0 else int(mora_index[i - 1])
             z_tmp[prev_index : int(mora_i)] = z[i]
 
-        x = torch.cat([linguistic_features, z_tmp.view(-1, self.z_dim)], dim=1)
+        x = torch.cat([linguistic_features, z_tmp.view(-1, self.z_dim).repeat_interleave(93, dim=1)], dim=1)
         x = self.fc12(x)
         x = F.relu(x)
 
@@ -266,10 +266,11 @@ class Rnn(nn.Module):
 
 
 class BinaryFileSource(FileDataSource):
-    def __init__(self, data_root, dim, train):
+    def __init__(self, data_root, dim, train, valid=True):
         self.data_root = data_root
         self.dim = dim
         self.train = train
+        self.valid = valid
 
     def collect_files(self):
         files = sorted(glob(join(self.data_root, "*.bin")))
@@ -280,9 +281,11 @@ class BinaryFileSource(FileDataSource):
 
         for i, path in enumerate(files):
             if (i - 1) % 20 == 0:  # test
-                pass
+                if not self.valid:
+                    test_files.append(path)
             elif i % 20 == 0:  # valid
-                test_files.append(path)
+                if self.valid:
+                    test_files.append(path)
             else:
                 train_files.append(path)
 
@@ -299,7 +302,7 @@ class LBG:
     def __init__(self, num_class=2, z_dim=8):
         self.num_class = num_class
         self.z_dim = z_dim
-        self.eps = np.array([1e-3] * z_dim)
+        self.eps = np.array([1e-2] * z_dim)
 
     def calc_center(self, x):
         vectors = x.view(-1, self.z_dim)
@@ -323,7 +326,8 @@ class LBG:
         rep_vecs = kmeans.cluster_centers_
 
         for i in range(int(np.log2(self.num_class)) - 1):
-            kmeans = KMeans(n_clusters=2 ** (i + 1), init=rep_vecs)
+            rep_vecs = np.concatenate([rep_vecs + self.eps, rep_vecs - self.eps])
+            kmeans = KMeans(n_clusters=2 ** (i + 2), init=rep_vecs)
             rep_vecs = kmeans.cluster_centers_
 
         return rep_vecs

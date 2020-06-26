@@ -15,14 +15,14 @@ def objective(trial):
     num_layers = 2  # trial.suggest_int("num_lstm_layers", 1, 2)
     args.num_layers = num_layers
 
-    z_dim = 8  # trial.suggest_categorical("z_dim", [1, 2, 8])
+    z_dim = 1  # trial.suggest_categorical("z_dim", [1, 2, 8])
     args.z_dim = z_dim
 
     if args.output_dir.find("/") >= 0:
         args.output_dir = args.output_dir[: args.output_dir.index("/")]
 
     if args.quantized:
-        num_class = 2  # trial.suggest_int("num_class", 2 , 4)
+        num_class = 4  # trial.suggest_int("num_class", 2 , 4)
         args.num_class = num_class
         output_dir_path = join(
             args.output_dir, "{}layers_zdim{}_nc{}".format(num_layers, z_dim, num_class)

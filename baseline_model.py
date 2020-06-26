@@ -24,7 +24,7 @@ import pyworld
 import pysptk
 import librosa
 import librosa.display
-
+from util import trajectory_smoothing
 
 DATA_ROOT = "./data/basic5000"  # NIT-ATR503/"#
 test_size = 0.01  # This means 480 utterances for training data
@@ -103,7 +103,7 @@ from torch.autograd import Variable
 from tqdm import tnrange, tqdm
 from torch import optim
 import torch.nn.functional as F
-
+from loss_func import rmse
 
 class Rnn(nn.Module):
     def __init__(self, bidirectional=True, num_layers=2):
@@ -121,7 +121,7 @@ class Rnn(nn.Module):
             bidirectional=bidirectional,
             dropout=0.15,
         )
-        self.fc3 = nn.Linear(self.num_direction * 512, acoustic_dim)
+        self.fc3 = nn.Linear(self.num_direction * 512, 1)
 
     def decode(self, linguistic_features):
         x = self.fc11(linguistic_features.view(linguistic_features.size()[0], 1, -1))
@@ -163,14 +163,14 @@ X_acoustic_train = [
     minmax_scale(x, X_min["acoustic"], X_max["acoustic"], feature_range=(0.01, 0.99))
     for x in X["acoustic"]["train"]
 ]
-Y_acoustic_train = [y for y in Y["acoustic"]["train"]]
+Y_acoustic_train = [trajectory_smoothing(y[:, lf0_start_idx].reshape(-1,1)).reshape(-1) for y in Y["acoustic"]["train"]]
 
 
 X_acoustic_test = [
     minmax_scale(x, X_min["acoustic"], X_max["acoustic"], feature_range=(0.01, 0.99))
     for x in X["acoustic"]["test"]
 ]
-Y_acoustic_test = [y for y in Y["acoustic"]["test"]]
+Y_acoustic_test = [trajectory_smoothing(y[:, lf0_start_idx].reshape(-1,1)).reshape(-1) for y in Y["acoustic"]["test"]]
 
 train_loader = [[x, y] for x, y in zip(X_acoustic_train, Y_acoustic_train)]
 test_loader = [[x, y] for x, y in zip(X_acoustic_test, Y_acoustic_test)]
@@ -225,15 +225,15 @@ def test(epoch):
 
             recon_batch = model(tmp[0])
             test_loss += loss_function(recon_batch, tmp[1]).item()
-            f0_loss += F.mse_loss(
-                recon_batch.view(-1, 199)[:, lf0_start_idx], tmp[1][:, lf0_start_idx]
+            f0_loss += rmse(
+                recon_batch.view(-1,).cpu().numpy(), tmp[1].cpu().numpy()
             ).item()
             del tmp
 
     test_loss /= len(test_loader)
     print("====> Test set loss: {:.4f}".format(test_loss))
 
-    return test_loss, f0_loss / len(test_loader)
+    return test_loss, f0_loss / len(test_loader) * 1200 / np.log(2)
 
 
 loss_list = []
@@ -262,16 +262,16 @@ for epoch in range(1, num_epochs + 1):
 
     if epoch % 5 == 0:
         torch.save(
-            model.state_dict(), "baseline_lower/baseline_lower_{}.pth".format(epoch)
+            model.state_dict(), "baseline_lower/baseline_lowerf0_{}.pth".format(epoch)
         )
-    np.save("baseline_lower/loss_list_baseline.npy", np.array(loss_list))
-    np.save("baseline_lower/test_loss_list_baseline.npy", np.array(test_loss_list))
-    np.save("baseline_lower/test_f0loss_list_baseline.npy", np.array(f0_loss_list))
+    np.save("baseline_lower/loss_list_f0.npy", np.array(loss_list))
+    np.save("baseline_lower/test_loss_list_f0.npy", np.array(test_loss_list))
+    np.save("baseline_lower/test_f0loss_list_f0.npy", np.array(f0_loss_list))
 
     print(time.time() - start)
 
 # save the training model
-np.save("baseline_lower/loss_list_baseline.npy", np.array(loss_list))
-np.save("baseline_lower/test_loss_list_baseline.npy", np.array(test_loss_list))
-torch.save(model.state_dict(), "baseline_lower/baseline.pth")
+np.save("baseline_lower/loss_list_f0.npy", np.array(loss_list))
+np.save("baseline_lower/test_loss_list_f0.npy", np.array(test_loss_list))
+torch.save(model.state_dict(), "baseline_lower/baseline_f0.pth")
 

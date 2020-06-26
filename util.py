@@ -124,7 +124,7 @@ def smooth_f0(y):
     return ans
 
 
-def create_loader(test=False, batch_size=1):
+def create_loader(valid=True, batch_size=1):
     DATA_ROOT = "./data/basic5000"
     X = {"acoustic": {}}
     Y = {"acoustic": {}}
@@ -138,12 +138,12 @@ def create_loader(test=False, batch_size=1):
             y_dim = duration_dim if ty == "duration" else acoustic_dim
             X[ty][phase] = FileSourceDataset(
                 BinaryFileSource(
-                    join(DATA_ROOT, "X_{}".format(ty)), dim=x_dim, train=train
+                    join(DATA_ROOT, "X_{}".format(ty)), dim=x_dim, train=train, valid=valid
                 )
             )
             Y[ty][phase] = FileSourceDataset(
                 BinaryFileSource(
-                    join(DATA_ROOT, "Y_{}".format(ty)), dim=y_dim, train=train
+                    join(DATA_ROOT, "Y_{}".format(ty)), dim=y_dim, train=train, valid=valid
                 )
             )
             utt_lengths[ty][phase] = np.array(
@@ -171,7 +171,7 @@ def create_loader(test=False, batch_size=1):
             "var": Y_var["acoustic"],
             "scale": Y_scale["acoustic"],
         }
-    )
+    ).to_csv('data/y_stats.csv')
 
     mora_index_lists = sorted(glob(join("data/basic5000/mora_index", "squeezed_*.csv")))
     mora_index_lists_for_model = [
@@ -180,13 +180,9 @@ def create_loader(test=False, batch_size=1):
 
     train_mora_index_lists = []
     test_mora_index_lists = []
-    test_not_valid = []
 
     for i, mora_i in enumerate(mora_index_lists_for_model):
         if (i - 1) % 20 == 0:  # test
-            if test:
-                test_not_valid.append(i)
-            else:
                 pass
         elif i % 20 == 0:  # valid
             test_mora_index_lists.append(mora_i)
@@ -234,10 +230,7 @@ def create_loader(test=False, batch_size=1):
         for i in range(len(test_mora_index_lists))
     ]
 
-    if test:
-        return train_loader, test_loader, test_not_valid_loader
-    else:
-        return train_loader, test_loader
+    return train_loader, test_loader
 
 
 def trajectory_smoothing(x, thresh=0.1):
@@ -264,7 +257,7 @@ def trajectory_smoothing(x, thresh=0.1):
 
 
 def num2str(num):
-    return "0" * (4 - len(num + 1)) + str(num + 1)
+    return "0" * (4 - len(str(num + 1))) + str(num + 1)
 
 
 def test_loader():
@@ -282,8 +275,8 @@ def test_loader():
         for i in indicies
     ]
 
-    y_data = [np.fromfile(path, dtype=np.float32) for path in y_paths]
-    x_data = [np.fromfile(path, dtype=np.float32) for path in x_paths]
+    y_data = [np.fromfile(path, dtype=np.float32).reshape(-1, 442) for path in y_paths]
+    x_data = [np.fromfile(path, dtype=np.float32).reshape(-1, 199) for path in x_paths]
     mora_indices = [np.loadtxt(path) for path in mora_paths]
 
     stats = pd.read_csv("data/stats.csv")
