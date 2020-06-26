@@ -336,7 +336,7 @@ class LBG:
 
         for i in range(int(np.log2(self.num_class)) - 1):
             rep_vecs = np.concatenate([rep_vecs + self.eps, rep_vecs - self.eps])
-            kmeans = KMeans(n_clusters=2 ** (i + 2), init=rep_vecs)
+            kmeans = KMeans(n_clusters=2 ** (i + 2), init=rep_vecs).fit(data)
             rep_vecs = kmeans.cluster_centers_
 
         return rep_vecs
