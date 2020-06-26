@@ -24,6 +24,7 @@ def train_vqvae(args, trial=None):
     ).to(device)
 
     train_loader, test_loader = create_loader()
+    train_loader = train_loader[:train_num]
 
     if args["model_path"] != "":
         model.load_state_dict(torch.load(args["model_path"]))
@@ -51,7 +52,6 @@ def train_vqvae(args, trial=None):
     optimizer = optim.Adam(model.parameters(), lr=2e-4)  # 1e-3
 
     train_num = int(args["train_ratio"] * len(train_loader))  # 1
-    train_loader = train_loader[:train_num]
 
     loss_list = []
     test_loss_list = []
