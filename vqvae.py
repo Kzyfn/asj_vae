@@ -53,8 +53,8 @@ def train_vqvae(args, trial=None):
         codebook = nn.Parameter(init_codebook)
         model.init_codebook(codebook)
 
-    optimizer = optim.Adam(model.parameters(), lr=1e-3)  # 1e-3
-    scheduler = optim.lr_scheduler.StepLR(optimizer, step_size=3, gamma=0.5)
+    optimizer = optim.Adam(model.parameters(), lr=2e-4)  # 1e-3
+    # scheduler = optim.lr_scheduler.StepLR(optimizer, step_size=3, gamma=0.5)
     loss_list = []
     test_loss_list = []
     f0_loss_list = []
@@ -68,7 +68,7 @@ def train_vqvae(args, trial=None):
                 epoch + 1, args["num_epoch"], loss, test_loss
             )
         )
-        scheduler.step()
+        # scheduler.step()
         # logging
         loss_list.append(loss)
         test_loss_list.append(test_loss)

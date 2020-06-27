@@ -181,7 +181,7 @@ device = "cuda"
 model = Rnn().to(device)
 # model.load_state_dict(torch.load("baseline2/baseline.pth"))
 optimizer = optim.Adam(model.parameters(), lr=1e-3, weight_decay=2.8e-9)  # 1e-3
-scheduler = optim.lr_scheduler.StepLR(optimizer, step_size=3, gamma=0.5)
+# scheduler = optim.lr_scheduler.StepLR(optimizer, step_size=3, gamma=0.5)
 
 start = time.time()
 
@@ -266,7 +266,7 @@ def train(epoch):
         loss.backward()
         train_loss += loss.item()
         optimizer.step()
-        scheduler.step()
+        # scheduler.step()
         del tmp
         if i % 4945 == 0:
             print(
