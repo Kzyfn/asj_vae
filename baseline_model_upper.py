@@ -311,7 +311,9 @@ def test(epoch):
 
             recon_batch = model(torch.cat([tmp[0].float(), h_l_label_tensor], dim=1))
             test_loss += loss_function(recon_batch, tmp[1]).item()
-            f0_loss += rmse(recon_batch.cpu().numpy(), tmp[1].cpu().numpy()).item()
+            f0_loss += rmse(
+                recon_batch.cpu().numpy().reshape(-1), tmp[1].cpu().numpy()
+            ).item()
 
             del tmp
 
