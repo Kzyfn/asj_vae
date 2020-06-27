@@ -180,7 +180,7 @@ class Rnn(nn.Module):
 device = "cuda"
 model = Rnn().to(device)
 # model.load_state_dict(torch.load("baseline2/baseline.pth"))
-optimizer = optim.Adam(model.parameters(), lr=1e-3, weight_decay=2.8e-9)  # 1e-3
+optimizer = optim.Adam(model.parameters(), lr=1e-4, weight_decay=2.8e-9)  # 1e-3
 # scheduler = optim.lr_scheduler.StepLR(optimizer, step_size=3, gamma=0.5)
 
 start = time.time()
