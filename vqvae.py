@@ -35,7 +35,7 @@ def train_vqvae(args, trial=None):
         # zを用意
 
         sampled_indices = random.sample(
-            list(range(len(train_loader))), min(len(train_loader), 100)
+            list(range(len(train_loader))), min(len(train_loader), 40)
         )
         z = torch.tensor([[0.0] * args["z_dim"]]).to(device)
 
