@@ -128,12 +128,13 @@ class VAE(nn.Module):
 
 class VQVAE(nn.Module):
     def __init__(
-        self, bidirectional=True, num_layers=2, num_class=2, z_dim=1, dropout=0.15
+        self, bidirectional=True, num_layers=2, num_class=2, z_dim=1, dropout=0.15, repeat=1
     ):
         super(VQVAE, self).__init__()
         self.num_layers = num_layers
         self.num_direction = 2 if bidirectional else 1
         self.num_class = num_class
+        self.repeat=repeat
         self.quantized_vectors = nn.Embedding(
             num_class, z_dim
         )  # torch.tensor([[i]*z_dim for i in range(nc)], requires_grad=True)
@@ -158,10 +159,10 @@ class VQVAE(nn.Module):
         ##ここまでエンコーダ
 
         self.fc12 = nn.Linear(
-            acoustic_linguisic_dim + z_dim, acoustic_linguisic_dim + z_dim
+            acoustic_linguisic_dim + z_dim*self.repeat, acoustic_linguisic_dim + z_dim*self.repeat
         )
         self.lstm2 = nn.LSTM(
-            acoustic_linguisic_dim + z_dim,
+            acoustic_linguisic_dim + z_dim*self.repeat,
             hidden_num,
             num_layers,
             bidirectional=bidirectional,
@@ -219,7 +220,7 @@ class VQVAE(nn.Module):
         x = torch.cat(
             [
                 linguistic_features,
-                z_tmp.view(-1, self.z_dim),  # .repeat_interleave(93, dim=1),
+                z_tmp.view(-1, self.z_dim).repeat_interleave(self.repeat, dim=1),
             ],
             dim=1,
         )

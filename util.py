@@ -183,9 +183,11 @@ def create_loader(valid=True, batch_size=1):
 
     for i, mora_i in enumerate(mora_index_lists_for_model):
         if (i - 1) % 20 == 0:  # test
-                pass
+            if not valid:
+                test_mora_index_lists.append(mora_i) 
         elif i % 20 == 0:  # valid
-            test_mora_index_lists.append(mora_i)
+            if valid:
+                test_mora_index_lists.append(mora_i)
         else:
             train_mora_index_lists.append(mora_i)
 
