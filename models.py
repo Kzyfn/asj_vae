@@ -60,10 +60,10 @@ class VAE(nn.Module):
         ##ここまでエンコーダ
 
         self.fc12 = nn.Linear(
-            acoustic_linguisic_dim + z_dim * 93, acoustic_linguisic_dim + z_dim * 93
+            acoustic_linguisic_dim + z_dim, acoustic_linguisic_dim + z_dim
         )
         self.lstm2 = nn.LSTM(
-            acoustic_linguisic_dim + z_dim * 93,
+            acoustic_linguisic_dim + z_dim,
             hidden_num,
             2,
             bidirectional=bidirectional,
@@ -105,7 +105,7 @@ class VAE(nn.Module):
         x = torch.cat(
             [
                 linguistic_features,
-                z_tmp.view(-1, self.z_dim).repeat_interleave(1, dim=1),
+                z_tmp.view(-1, self.z_dim),  # .repeat_interleave(93, dim=1),
             ],
             dim=1,
         )
@@ -219,7 +219,7 @@ class VQVAE(nn.Module):
         x = torch.cat(
             [
                 linguistic_features,
-                z_tmp.view(-1, self.z_dim).repeat_interleave(1, dim=1),
+                z_tmp.view(-1, self.z_dim),  # .repeat_interleave(93, dim=1),
             ],
             dim=1,
         )
