@@ -147,7 +147,7 @@ class Rnn(nn.Module):
         self.num_layers = num_layers
         self.num_direction = 2 if bidirectional else 1
         ##ここまでエンコーダ
-        acoustic_linguisic_dim_ = 442 + 1 * 93
+        acoustic_linguisic_dim_ = 442 + 1 #* 93
         self.fc11 = nn.Linear(
             acoustic_linguisic_dim_, acoustic_linguisic_dim_
         )  # acoustic_linguisic_dim_)
@@ -252,14 +252,14 @@ def train(epoch):
         h_l_label_tensor = torch.tensor([0.0] * data[0].shape[0]).to(device)
         for j, mora_i in enumerate(train_mora_index_lists[i]):
             prev_index = 0 if j == 0 else int(train_mora_index_lists[i][j - 1])
-            h_l_label_tensor[prev_index : int(mora_i)] = tmp[2][j]
+            h_l_label_tensor[prev_index : int(mora_i)] = tmp[2][j]*10
 
         h_l_label_tensor[(data[0][:, 97] - 0.01).nonzero()[0]] = 0
-        h_l_label_tensor = (
-            h_l_label_tensor.float().view(-1, 1).repeat_interleave(93, dim=1)
-        )
+        #h_l_label_tensor = (
+        #    h_l_label_tensor.float().view(-1, 1).repeat_interleave(93, dim=1)
+        #)
 
-        x = torch.cat([tmp[0].float(), h_l_label_tensor], dim=1)
+        x = torch.cat([tmp[0].float(), h_l_label_tensor.float().view(-1, 1)], dim=1)
         optimizer.zero_grad()
         recon_batch = model(x)
         loss = loss_function(recon_batch, tmp[1])
@@ -302,14 +302,14 @@ def test(epoch):
             h_l_label_tensor = torch.tensor([0] * data[0].shape[0]).to(device)
             for j, mora_i in enumerate(test_mora_index_lists[i]):
                 prev_index = 0 if j == 0 else j - 1
-                h_l_label_tensor[prev_index : int(mora_i)] = tmp[2][j]
+                h_l_label_tensor[prev_index : int(mora_i)] = tmp[2][j]*10
 
             h_l_label_tensor[(data[0][:, 97] - 0.01).nonzero()[0]] = 0
-            h_l_label_tensor = (
-                h_l_label_tensor.float().view(-1, 1).repeat_interleave(93, dim=1)
-            )
+            #h_l_label_tensor = (
+            #    h_l_label_tensor.float().view(-1, 1).repeat_interleave(93, dim=1)
+            #)
 
-            recon_batch = model(torch.cat([tmp[0].float(), h_l_label_tensor], dim=1))
+            recon_batch = model(torch.cat([tmp[0].float(), h_l_label_tensor.float().view(-1, 1)], dim=1))
             test_loss += loss_function(recon_batch, tmp[1]).item()
             f0_loss += rmse(
                 recon_batch.cpu().numpy().reshape(-1), tmp[1].cpu().numpy()
@@ -349,16 +349,16 @@ for epoch in range(1, num_epochs + 1):
     f0_loss_list.append(f0_loss)
 
     if epoch % 5 == 0:
-        torch.save(model.state_dict(), "baseline2_93dim/baseline_{}.pth".format(epoch))
+        torch.save(model.state_dict(), "baseline2_0-10/baseline_{}.pth".format(epoch))
 
-    np.save("baseline2_93dim/loss_list_baseline.npy", np.array(loss_list))
-    np.save("baseline2_93dim/test_loss_list_baseline.npy", np.array(test_loss_list))
-    np.save("baseline2_93dim/test_f0loss_list_baseline.npy", f0_loss_list)
+    np.save("baseline2_0-10/loss_list_baseline.npy", np.array(loss_list))
+    np.save("baseline2_0-10/test_loss_list_baseline.npy", np.array(test_loss_list))
+    np.save("baseline2_0-10/test_f0loss_list_baseline.npy", f0_loss_list)
 
     print(time.time() - start)
 
 # save the training model
-np.save("baseline2_93dim/loss_list_baseline.npy", np.array(loss_list))
-np.save("baseline2_93dim/test_loss_list_baseline.npy", np.array(test_loss_list))
-torch.save(model.state_dict(), "baseline2_93dim/baseline.pth")
+np.save("baseline2_0-10/loss_list_baseline.npy", np.array(loss_list))
+np.save("baseline2_0-10/test_loss_list_baseline.npy", np.array(test_loss_list))
+torch.save(model.state_dict(), "baseline2_0-10/baseline.pth")
 
