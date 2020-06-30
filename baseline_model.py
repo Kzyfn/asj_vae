@@ -105,6 +105,7 @@ from torch import optim
 import torch.nn.functional as F
 from loss_func import rmse
 
+
 class Rnn(nn.Module):
     def __init__(self, bidirectional=True, num_layers=2):
         super(Rnn, self).__init__()
@@ -144,8 +145,7 @@ import pandas as pd
 
 device = "cuda"
 model = Rnn().to(device)
-model.load_state_dict(torch.load('baseline_lower/baseline_f0.pth'))
-optimizer = optim.Adam(model.parameters(), lr=5e-4)  # 1e-3
+optimizer = optim.Adam(model.parameters(), lr=2e-4)  # 1e-3
 
 start = time.time()
 
@@ -164,14 +164,20 @@ X_acoustic_train = [
     minmax_scale(x, X_min["acoustic"], X_max["acoustic"], feature_range=(0.01, 0.99))
     for x in X["acoustic"]["train"]
 ]
-Y_acoustic_train = [trajectory_smoothing(y[:, lf0_start_idx].reshape(-1,1)).reshape(-1) for y in Y["acoustic"]["train"]]
+Y_acoustic_train = [
+    trajectory_smoothing(y[:, lf0_start_idx].reshape(-1, 1)).reshape(-1)
+    for y in Y["acoustic"]["train"]
+]
 
 
 X_acoustic_test = [
     minmax_scale(x, X_min["acoustic"], X_max["acoustic"], feature_range=(0.01, 0.99))
     for x in X["acoustic"]["test"]
 ]
-Y_acoustic_test = [trajectory_smoothing(y[:, lf0_start_idx].reshape(-1,1)).reshape(-1) for y in Y["acoustic"]["test"]]
+Y_acoustic_test = [
+    trajectory_smoothing(y[:, lf0_start_idx].reshape(-1, 1)).reshape(-1)
+    for y in Y["acoustic"]["test"]
+]
 
 train_loader = [[x, y] for x, y in zip(X_acoustic_train, Y_acoustic_train)]
 test_loader = [[x, y] for x, y in zip(X_acoustic_test, Y_acoustic_test)]
@@ -240,7 +246,7 @@ def test(epoch):
 loss_list = []
 test_loss_list = []
 f0_loss_list = []
-num_epochs = 10
+num_epochs = 20
 
 # model.load_state_dict(torch.load('vae.pth'))
 
@@ -262,16 +268,16 @@ for epoch in range(1, num_epochs + 1):
     f0_loss_list.append(f0_loss)
 
     torch.save(
-        model.state_dict(), "baseline_lower/baseline_lowerf0_{}.pth".format(epoch+10)
+        model.state_dict(), "baseline_l/baseline_lowerf0_{}.pth".format(epoch + 10)
     )
-    np.save("baseline_lower/loss_list_f0_2.npy", np.array(loss_list))
-    np.save("baseline_lower/test_loss_list_f0_2.npy", np.array(test_loss_list))
-    np.save("baseline_lower/test_f0loss_list_f0_2.npy", np.array(f0_loss_list))
+    np.save("baseline_l/loss_list_f0.npy", np.array(loss_list))
+    np.save("baseline_l/test_loss_list_f0.npy", np.array(test_loss_list))
+    np.save("baseline_l/test_f0loss_list_f0.npy", np.array(f0_loss_list))
 
     print(time.time() - start)
 
 # save the training model
-np.save("baseline_lower/loss_list_f0_2.npy", np.array(loss_list))
-np.save("baseline_lower/test_loss_list_f0_2.npy", np.array(test_loss_list))
-torch.save(model.state_dict(), "baseline_lower/baseline_f0_2.pth")
+np.save("baseline_l/loss_list_f0.npy", np.array(loss_list))
+np.save("baseline_l/test_loss_list_f0.npy", np.array(test_loss_list))
+torch.save(model.state_dict(), "baseline_l/baseline_f0.pth")
 
