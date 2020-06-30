@@ -270,7 +270,7 @@ def test_loader():
         join(DATA_ROOT, "Y_acoustic/BASIC_{}.bin".format(num2str(i))) for i in indicies
     ]
     x_paths = [
-        join(DATA_ROOT, "Y_acoustic/BASIC_{}.bin".format(num2str(i))) for i in indicies
+        join(DATA_ROOT, "X_acoustic/BASIC_{}.bin".format(num2str(i))) for i in indicies
     ]
     mora_paths = [
         join(DATA_ROOT, "mora_index/squeezed_mora_index_{}.csv".format(num2str(i)))
