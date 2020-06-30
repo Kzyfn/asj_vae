@@ -179,8 +179,7 @@ class Rnn(nn.Module):
 
 device = "cuda"
 model = Rnn().to(device)
-model.load_state_dict(torch.load("baseline2_0-10/baseline_5.pth"))
-optimizer = optim.Adam(model.parameters(), lr=5e-5, weight_decay=2.8e-9)  # 1e-3
+optimizer = optim.Adam(model.parameters(), lr=2e-4, weight_decay=2.8e-9)  # 1e-3
 # scheduler = optim.lr_scheduler.StepLR(optimizer, step_size=3, gamma=0.5)
 
 start = time.time()
@@ -252,7 +251,7 @@ def train(epoch):
         h_l_label_tensor = torch.tensor([0.0] * data[0].shape[0]).to(device)
         for j, mora_i in enumerate(train_mora_index_lists[i]):
             prev_index = 0 if j == 0 else int(train_mora_index_lists[i][j - 1])
-            h_l_label_tensor[prev_index : int(mora_i)] = tmp[2][j] * 10
+            h_l_label_tensor[prev_index : int(mora_i)] = tmp[2][j]
 
         h_l_label_tensor[(data[0][:, 97] - 0.01).nonzero()[0]] = 0
         # h_l_label_tensor = (
