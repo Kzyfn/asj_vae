@@ -160,6 +160,7 @@ class Rnn(nn.Module):
 
 device = "cuda"
 model = Rnn().to(device)
+model.load_state_dict(torch.load("baseline2/baseline_9.pth"))
 optimizer = optim.Adam(model.parameters(), lr=2e-4, weight_decay=2.8e-9)  # 1e-3
 # scheduler = optim.lr_scheduler.StepLR(optimizer, step_size=3, gamma=0.5)
 
@@ -330,16 +331,18 @@ for epoch in range(1, num_epochs + 1):
     test_loss_list.append(test_loss)
     f0_loss_list.append(f0_loss)
 
-    torch.save(model.state_dict(), "baseline2/baseline_{}.pth".format(epoch))
+    torch.save(model.state_dict(), "../../disk/baseline2/baseline_{}.pth".format(epoch))
 
-    np.save("baseline2/loss_list_baseline.npy", np.array(loss_list))
-    np.save("baseline2/test_loss_list_baseline.npy", np.array(test_loss_list))
-    np.save("baseline2/test_f0loss_list_baseline.npy", f0_loss_list)
+    np.save("../../disk/baseline2/loss_list_baseline.npy", np.array(loss_list))
+    np.save(
+        "../../disk/baseline2/test_loss_list_baseline.npy", np.array(test_loss_list)
+    )
+    np.save("../../disk/baseline2/test_f0loss_list_baseline.npy", f0_loss_list)
 
     print(time.time() - start)
 
 # save the training model
-np.save("baseline2/loss_list_baseline.npy", np.array(loss_list))
-np.save("baseline2/test_loss_list_baseline.npy", np.array(test_loss_list))
-torch.save(model.state_dict(), "baseline2/baseline.pth")
+np.save("../../disk/baseline2/loss_list_baseline.npy", np.array(loss_list))
+np.save("../../disk/baseline2/test_loss_list_baseline.npy", np.array(test_loss_list))
+torch.save(model.state_dict(), "../../disk/baseline2/baseline.pth")
 
