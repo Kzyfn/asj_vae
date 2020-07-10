@@ -226,7 +226,7 @@ def calc_lf0_rmse(natural, generated, lf0_idx=lf0_start_idx, vuv_idx=vuv_start_i
 
 ans = []
 for i in range(250):
-    y, z_q, z_uq = recon(i)
+    y, z_q, z_uq = recon(i, verbose=False)
     ans.append([z_q, h_l_labels_test[i], z_uq])
 
 import pickle
