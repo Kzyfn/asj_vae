@@ -122,6 +122,8 @@ model.load_state_dict(
     torch.load("vqvae_2_1_4/vqvae_model_f0.pth", map_location=torch.device("cpu"))
 )
 
+print(model.quantized_vectors.weight)
+
 h_l_labels_train = []
 h_l_labels_test = []
 h_l_labels_valid = []
