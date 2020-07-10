@@ -23,7 +23,7 @@ def vae_loss(recon_x, x, mu, logvar):
     return MSE + KLD
 
 
-def vqvae_loss(recon_x, x, z, z_unquantized, beta=1):
+def vqvae_loss(recon_x, x, z, z_unquantized, beta=0.25):
 
     MSE = F.mse_loss(
         recon_x.view(-1), x.reshape(-1,), reduction="sum"
