@@ -84,7 +84,7 @@ def train_accent_rnn(args, trial=None, test_ratio=1):
     file_not_exists = not os.path.isfile("z_train.csv")
 
     if file_not_exists:
-        vqvae_model = VQVAE().to(device)
+        vqvae_model = VQVAE(num_layers=args["num_layers"], z_dim=args["z_dim"], num_class=args["num_class"]num_layers=args["num_layers"], z_dim=args["z_dim"], num_class=args["num_class"]).to(device)
         vqvae_model.load_state_dict(torch.load("vqvae_model.pth"))
         z_train = []
         z_test = []
