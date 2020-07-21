@@ -137,9 +137,7 @@ def train_accent_rnn(args, trial=None, test_ratio=1):
 
         # logging
         loss_list.append(loss)
-        f0_loss_trainlist.append(f0_loss_train)
         test_loss_list.append(test_loss)
-        f0_loss_list.append(f0_loss)
 
         if trial is not None:
             trial.report(test_loss, epoch - 1)
@@ -156,9 +154,7 @@ def train_accent_rnn(args, trial=None, test_ratio=1):
                 args["output_dir"] + "/vae_model_{}.pth".format(epoch),
             )
         np.save(args["output_dir"] + "/loss_list.npy", np.array(loss_list))
-        np.save(args["output_dir"] + "/f0loss_list.npy", np.array(f0_loss_trainlist))
         np.save(args["output_dir"] + "/test_loss_list.npy", np.array(test_loss_list))
-        np.save(args["output_dir"] + "/test_f0loss_list.npy", np.array(f0_loss_list))
 
     return f0_loss
 
