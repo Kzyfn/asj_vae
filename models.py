@@ -287,7 +287,7 @@ class Accent_Rnn(nn.Module):
     def __init__(
         self, bidirectional=True, num_layers=2
     ):  # accent_label_type: 0;なし, 1; 92次元, 2; H/Lラベル
-        super(Rnn, self).__init__()
+        super(Accent_Rnn, self).__init__()
         self.num_layers = num_layers
         self.num_direction = 2 if bidirectional else 1
         ##ここまでエンコーダ
@@ -298,11 +298,17 @@ class Accent_Rnn(nn.Module):
         )
         self.fc3 = nn.Linear(self.num_direction * 512, 1)
 
-    def decode(self, linguistic_features):
+    def decode(self, linguistic_features, mora_index):
+        hidden_num = 512
+
         x = linguistic_features.view(linguistic_features.size()[0], 1, -1)
         x = self.fc1(x)
         x = F.relu(x)
-        h3, (h, c) = self.lstm2(x)
+        out, (h, c) = self.lstm2(x)
+        out_forward = out[:, :, :hidden_num][mora_index]
+        mora_index_for_back = np.concatenate([[0], mora_index[:-1] + 1])
+        out_back = out[:, :, hidden_num:][mora_index_for_back]
+        out = torch.cat([out_forward, out_back], dim=2)
         h3 = F.relu(h3)
 
         return self.fc3(h3)  # torch.sigmoid(self.fc3(h3))
