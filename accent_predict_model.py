@@ -85,9 +85,9 @@ def train_accent_rnn(args, trial=None, test_ratio=1):
 
     if file_not_exists:
         vqvae_model = VQVAE(
-            num_layers=2#args["num_layers"],
-            z_dim=1#args["z_dim"],
-            num_class=4#args["num_class"],
+            num_layers=2,  # args["num_layers"],
+            z_dim=1,  # args["z_dim"],
+            num_class=4,  # args["num_class"],
         ).to(device)
         vqvae_model.load_state_dict(torch.load("vqvae_model.pth"))
         z_train = []
