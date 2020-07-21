@@ -21,12 +21,14 @@ def train(epoch, model, train_loader, z_train, optimizer):
     f0_loss = 0
     for batch_idx, data in enumerate(train_loader):
         tmp = []
-        for j in range(2):
+        for j in range(1):
             tmp.append(torch.from_numpy(data[j]).float().to(device))
 
         optimizer.zero_grad()
         z_pred = model(tmp[0], data[2])
-        loss = F.mse_loss(z_pred.view(-1), torch.from_numpy(z_train[batch_idx]).to(device))
+        loss = F.mse_loss(
+            z_pred.view(-1), torch.from_numpy(z_train[batch_idx]).to(device)
+        )
         loss.backward()
         train_loss += loss.item()
         optimizer.step()
@@ -39,6 +41,7 @@ def train(epoch, model, train_loader, z_train, optimizer):
     )
     return train_loss / len(train_loader)
 
+
 def test(epoch, model, test_loader, z_test):
     model.eval()
     train_loss = 0
@@ -46,11 +49,13 @@ def test(epoch, model, test_loader, z_test):
     with torch.no_grad():
         for batch_idx, data in enumerate(test_loader):
             tmp = []
-            for j in range(2):
+            for j in range(1):
                 tmp.append(torch.from_numpy(data[j]).float().to(device))
 
             z_pred = model(tmp[0], data[2])
-            loss = F.mse_loss(z_pred.view(-1), torch.from_numpy(z_train[batch_idx]).to(device))
+            loss = F.mse_loss(
+                z_pred.view(-1), torch.from_numpy(z_train[batch_idx]).to(device)
+            )
             test_loss += loss.item()
             del tmp
 
@@ -62,16 +67,11 @@ def test(epoch, model, test_loader, z_test):
     return test_loss / len(test_loader)
 
 
-
-
-
-
 def train_accent_rnn(args, trial=None, test_ratio=1):
     """
 
     """
     model = Accent_Rnn().to(device)
-
 
     optimizer = optim.Adam(model.parameters(), lr=2e-4)  # 1e-3
     # scheduler = optim.lr_scheduler.StepLR(optimizer, step_size=3, gamma=0.5)
@@ -81,9 +81,11 @@ def train_accent_rnn(args, trial=None, test_ratio=1):
     train_loader = train_loader[:train_num]
     test_loader = test_loader[:test_num]
 
+    file_not_exists = os.path.isfile("z_train.csv")
+
     if file_not_exists:
         vqvae_model = VQVAE().to(device)
-        vqvae_model.load_state_dict(torch.load(''))
+        vqvae_model.load_state_dict(torch.load("vqvae_model.pth"))
         z_train = []
         z_test = []
         with torch.no_grad():
@@ -93,19 +95,18 @@ def train_accent_rnn(args, trial=None, test_ratio=1):
                     tmp.append(torch.from_numpy(data[j]).float().to(device))
                     recon_batch, z, z_unquantized = model(tmp[0], tmp[1], data[2], 0)
                     z_train.append(z)
-            
+
             for data in test_loader:
                 for x in range(2):
                     tmp.append(torch.from_numpy(data[j]).float().to(device))
                     recon_batch, z, z_unquantized = model(tmp[0], tmp[1], data[2], 0)
                     z_test.append(z)
-        np.savetxt(, z_train)
-        np.savetxt(, z_test)
-        
-    else:
-        z_train = np.loadtxt()
-        z_test = np.loadtxt()
+        np.savetxt("z_train.csv", z_train)
+        np.savetxt("z_test.csv", z_test)
 
+    else:
+        z_train = np.loadtxt("z_train.csv")
+        z_test = np.loadtxt("z_test.csv")
 
     loss_list = []
     test_loss_list = []
@@ -114,9 +115,7 @@ def train_accent_rnn(args, trial=None, test_ratio=1):
     start = time.time()
 
     for epoch in range(1, args["num_epoch"] + 1):
-        loss = train(
-            epoch, model, train_loader, z_train, optimizer
-        )
+        loss = train(epoch, model, train_loader, z_train, optimizer)
         test_loss, f0_loss = test(epoch, model, test_loader, z_test)
         # scheduler.step()
         print(
