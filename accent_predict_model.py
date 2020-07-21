@@ -7,6 +7,7 @@ import numpy as np
 from tqdm import tnrange, tqdm
 import optuna
 import os
+import pickle
 
 from models import Accent_Rnn, BinaryFileSource, VQVAE
 from loss_func import calc_lf0_rmse, vae_loss
@@ -99,19 +100,24 @@ def train_accent_rnn(args, trial=None, test_ratio=1):
                     tmp.append(torch.from_numpy(data[j]).float().to(device))
                 recon_batch, z, z_unquantized = vqvae_model(tmp[0], tmp[1], data[2], 0)
                 z_train.append(z.cpu().numpy().reshape(-1))
-            print(z_train)
 
             for data in tqdm(test_loader):
                 for j in range(2):
                     tmp.append(torch.from_numpy(data[j]).float().to(device))
                 recon_batch, z, z_unquantized = vqvae_model(tmp[0], tmp[1], data[2], 0)
                 z_test.append(z.cpu().numpy().reshape(-1))
-        np.savetxt("z_train.csv", z_train)
-        np.savetxt("z_test.csv", z_test)
+
+        with open("z_train.csv", mode="wb") as f:
+            pickle.dump(z_train, f)
+
+        with open("z_test.csv", mode="wb") as f:
+            pickle.dump(z_test, f)
 
     else:
-        z_train = np.loadtxt("z_train.csv")
-        z_test = np.loadtxt("z_test.csv")
+        with open("z_train.csv", mode="rb") as f:
+            z_train = pickle.load(f)
+        with open("z_test.csv", mode="rb") as f:
+            z_test = pickle.load(f)
 
     loss_list = []
     test_loss_list = []
