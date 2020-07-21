@@ -313,9 +313,9 @@ class Accent_Rnn(nn.Module):
 
         return self.fc3(h3)  # torch.sigmoid(self.fc3(h3))
 
-    def forward(self, linguistic_features):
+    def forward(self, linguistic_features, mora_index):
 
-        return self.decode(linguistic_features)
+        return self.decode(linguistic_features, mora_index)
 
 
 class BinaryFileSource(FileDataSource):

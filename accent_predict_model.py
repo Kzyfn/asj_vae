@@ -84,7 +84,7 @@ def train_accent_rnn(args, trial=None, test_ratio=1):
 
     file_not_exists = not os.path.isfile("z_train.csv")
 
-    if True:  # file_not_exists:
+    if file_not_exists:
         vqvae_model = VQVAE(
             num_layers=2,  # args["num_layers"],
             z_dim=1,  # args["z_dim"],
