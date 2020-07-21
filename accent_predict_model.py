@@ -127,7 +127,7 @@ def train_accent_rnn(args, trial=None, test_ratio=1):
 
     for epoch in range(1, args["num_epoch"] + 1):
         loss = train(epoch, model, train_loader, z_train, optimizer)
-        test_loss, f0_loss = test(epoch, model, test_loader, z_test)
+        test_loss = test(epoch, model, test_loader, z_test)
         # scheduler.step()
         print(
             "epoch [{}/{}], loss: {:.4f} test_loss: {:.4f}".format(
