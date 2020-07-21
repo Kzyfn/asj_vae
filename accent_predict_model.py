@@ -45,7 +45,7 @@ def train(epoch, model, train_loader, z_train, optimizer):
 
 def test(epoch, model, test_loader, z_test):
     model.eval()
-    train_loss = 0
+    test_loss = 0
     f0_loss = 0
     with torch.no_grad():
         for batch_idx, data in enumerate(test_loader):
