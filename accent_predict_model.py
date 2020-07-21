@@ -81,7 +81,7 @@ def train_accent_rnn(args, trial=None, test_ratio=1):
     train_loader = train_loader[:train_num]
     test_loader = test_loader[:test_num]
 
-    file_not_exists = os.path.isfile("z_train.csv")
+    file_not_exists = not os.path.isfile("z_train.csv")
 
     if file_not_exists:
         vqvae_model = VQVAE().to(device)
