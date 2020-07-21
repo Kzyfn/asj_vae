@@ -99,6 +99,7 @@ def train_accent_rnn(args, trial=None, test_ratio=1):
                     tmp.append(torch.from_numpy(data[j]).float().to(device))
                 recon_batch, z, z_unquantized = vqvae_model(tmp[0], tmp[1], data[2], 0)
                 z_train.append(z.cpu().numpy())
+            print(z_train)
 
             for data in tqdm(test_loader):
                 for j in range(2):
