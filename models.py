@@ -128,13 +128,19 @@ class VAE(nn.Module):
 
 class VQVAE(nn.Module):
     def __init__(
-        self, bidirectional=True, num_layers=2, num_class=2, z_dim=1, dropout=0.15, repeat=1
+        self,
+        bidirectional=True,
+        num_layers=2,
+        num_class=2,
+        z_dim=1,
+        dropout=0.15,
+        repeat=1,
     ):
         super(VQVAE, self).__init__()
         self.num_layers = num_layers
         self.num_direction = 2 if bidirectional else 1
         self.num_class = num_class
-        self.repeat=repeat
+        self.repeat = repeat
         self.quantized_vectors = nn.Embedding(
             num_class, z_dim
         )  # torch.tensor([[i]*z_dim for i in range(nc)], requires_grad=True)
@@ -159,10 +165,11 @@ class VQVAE(nn.Module):
         ##ここまでエンコーダ
 
         self.fc12 = nn.Linear(
-            acoustic_linguisic_dim + z_dim*self.repeat, acoustic_linguisic_dim + z_dim*self.repeat
+            acoustic_linguisic_dim + z_dim * self.repeat,
+            acoustic_linguisic_dim + z_dim * self.repeat,
         )
         self.lstm2 = nn.LSTM(
-            acoustic_linguisic_dim + z_dim*self.repeat,
+            acoustic_linguisic_dim + z_dim * self.repeat,
             hidden_num,
             num_layers,
             bidirectional=bidirectional,
@@ -266,6 +273,35 @@ class Rnn(nn.Module):
 
     def decode(self, linguistic_features):
         x = linguistic_features.view(linguistic_features.size()[0], 1, -1)
+        h3, (h, c) = self.lstm2(x)
+        h3 = F.relu(h3)
+
+        return self.fc3(h3)  # torch.sigmoid(self.fc3(h3))
+
+    def forward(self, linguistic_features):
+
+        return self.decode(linguistic_features)
+
+
+class Accent_Rnn(nn.Module):
+    def __init__(
+        self, bidirectional=True, num_layers=2
+    ):  # accent_label_type: 0;なし, 1; 92次元, 2; H/Lラベル
+        super(Rnn, self).__init__()
+        self.num_layers = num_layers
+        self.num_direction = 2 if bidirectional else 1
+        ##ここまでエンコーダ
+        self.fc1 = nn.Linear(acoustic_linguisic_dim, acoustic_linguisic_dim)
+
+        self.lstm2 = nn.LSTM(
+            acoustic_linguisic_dim, 512, num_layers, bidirectional=bidirectional
+        )
+        self.fc3 = nn.Linear(self.num_direction * 512, 1)
+
+    def decode(self, linguistic_features):
+        x = linguistic_features.view(linguistic_features.size()[0], 1, -1)
+        x = self.fc1(x)
+        x = F.relu(x)
         h3, (h, c) = self.lstm2(x)
         h3 = F.relu(h3)
 

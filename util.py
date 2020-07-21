@@ -250,7 +250,7 @@ def trajectory_smoothing(x, thresh=0.1):
 
     y = copy.copy(x)
 
-    b, a = signal.butter(2, thresh)
+    b, a = signal.butter(2, thresh)#2次の
     for d in range(y.shape[1]):
         y[:, d] = signal.filtfilt(b, a, y[:, d])
         y[:, d] = signal.filtfilt(b, a, y[::-1, d])[::-1]
