@@ -55,7 +55,7 @@ def test(epoch, model, test_loader, z_test):
 
             z_pred = model(tmp[0], data[2])
             loss = F.mse_loss(
-                z_pred.view(-1), torch.from_numpy(z_train[batch_idx]).to(device)
+                z_pred.view(-1), torch.from_numpy(z_test[batch_idx]).to(device)
             )
             test_loss += loss.item()
             del tmp
