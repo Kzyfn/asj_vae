@@ -309,7 +309,7 @@ class Accent_Rnn(nn.Module):
         mora_index_for_back = np.concatenate([[0], mora_index[:-1] + 1])
         out_back = out[:, :, hidden_num:][mora_index_for_back]
         out = torch.cat([out_forward, out_back], dim=2)
-        h3 = F.relu(h3)
+        h3 = F.relu(out)
 
         return self.fc3(h3)  # torch.sigmoid(self.fc3(h3))
 
