@@ -90,13 +90,13 @@ def train_accent_rnn(args, trial=None, test_ratio=1):
         z_test = []
         with torch.no_grad():
             tmp = []
-            for data in train_loader:
+            for data in tqdm(train_loader):
                 for x in range(2):
                     tmp.append(torch.from_numpy(data[j]).float().to(device))
                     recon_batch, z, z_unquantized = model(tmp[0], tmp[1], data[2], 0)
                     z_train.append(z)
 
-            for data in test_loader:
+            for data in tqdm(test_loader):
                 for x in range(2):
                     tmp.append(torch.from_numpy(data[j]).float().to(device))
                     recon_batch, z, z_unquantized = model(tmp[0], tmp[1], data[2], 0)
