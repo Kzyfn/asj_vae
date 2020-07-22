@@ -24,13 +24,13 @@ def train(epoch, model, train_loader, z_train, optimizer):
     for batch_idx, data in enumerate(train_loader):
         tmp = []
         for j in range(1):
-            tmp.append(torch.from_numpy(data[j]).float().to(device).to(torch.float))
+            tmp.append(torch.from_numpy(data[j]).float().to(device))
         with torch.autograd.detect_anomaly():
             optimizer.zero_grad()
             z_pred = model(tmp[0], data[2])
             loss = F.mse_loss(
                 z_pred.view(-1),
-                torch.from_numpy(z_train[batch_idx]).to(device).to(torch.float),
+                torch.from_numpy(z_train[batch_idx]).float().to(device),
             )
 
             loss.backward()
@@ -63,12 +63,11 @@ def test(epoch, model, test_loader, z_test):
         for batch_idx, data in enumerate(test_loader):
             tmp = []
             for j in range(1):
-                tmp.append(torch.from_numpy(data[j]).float().to(device).to(torch.float))
+                tmp.append(torch.from_numpy(data[j]).float().to(device))
 
             z_pred = model(tmp[0], data[2])
             loss = F.mse_loss(
-                z_pred.view(-1),
-                torch.from_numpy(z_test[batch_idx]).to(device).to(torch.float),
+                z_pred.view(-1), torch.from_numpy(z_test[batch_idx]).float().to(device),
             )
             test_loss += loss.item()
             del tmp
@@ -110,7 +109,7 @@ def train_accent_rnn(args, trial=None, test_ratio=1):
         z_test = []
         with torch.no_grad():
             tmp = []
-            for idx, data in enumerate(tqdm(train_loader)):
+            for idx, data in enumerate(tqdm(train_loader[:0])):
                 for j in range(2):
                     tmp.append(torch.from_numpy(data[j]).float().to(device))
                 isnan = True
