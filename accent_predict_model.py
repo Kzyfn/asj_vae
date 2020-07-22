@@ -20,6 +20,7 @@ def train(epoch, model, train_loader, z_train, optimizer):
     model.train()
     train_loss = 0
     f0_loss = 0
+    train_pred_z = []
     for batch_idx, data in enumerate(train_loader):
         tmp = []
         for j in range(1):
@@ -30,23 +31,26 @@ def train(epoch, model, train_loader, z_train, optimizer):
         loss = F.mse_loss(
             z_pred.view(-1), torch.from_numpy(z_train[batch_idx]).to(device) / 17
         )
+
         loss.backward()
         train_loss += loss.item()
         optimizer.step()
         del tmp
+        train_pred_z.append(z_pred.cpu().numpy().reshape(-1))
 
     print(
         "====> Epoch: {} Average loss: {:.4f}".format(
             epoch, train_loss / len(train_loader)
         )
     )
-    return train_loss / len(train_loader)
+    return train_loss / len(train_loader), train_pred_z
 
 
 def test(epoch, model, test_loader, z_test):
     model.eval()
     test_loss = 0
     f0_loss = 0
+    test_pred_z = []
     with torch.no_grad():
         for batch_idx, data in enumerate(test_loader):
             tmp = []
@@ -60,12 +64,14 @@ def test(epoch, model, test_loader, z_test):
             test_loss += loss.item()
             del tmp
 
+            test_pred_z.append(z_pred.cpu().numpy().reshape(-1))
+
     print(
         "====> Epoch: {} Average loss: {:.4f}".format(
             epoch, test_loss / len(test_loader)
         )
     )
-    return test_loss / len(test_loader)
+    return test_loss / len(test_loader), test_pred_z
 
 
 def train_accent_rnn(args, trial=None, test_ratio=1):
@@ -126,8 +132,8 @@ def train_accent_rnn(args, trial=None, test_ratio=1):
     start = time.time()
 
     for epoch in range(1, args["num_epoch"] + 1):
-        loss = train(epoch, model, train_loader, z_train, optimizer)
-        test_loss = test(epoch, model, test_loader, z_test)
+        loss, train_pred_z = train(epoch, model, train_loader, z_train, optimizer)
+        test_loss, test_pred_z = test(epoch, model, test_loader, z_test)
         # scheduler.step()
         print(
             "epoch [{}/{}], loss: {:.4f} test_loss: {:.4f}".format(
@@ -153,6 +159,16 @@ def train_accent_rnn(args, trial=None, test_ratio=1):
                 model.state_dict(),
                 args["output_dir"] + "/vae_model_{}.pth".format(epoch),
             )
+            with open(
+                args["output_dir"] + "train_pred_z_{}.csv".format(epoch), mode="wb"
+            ) as f:
+                pickle.dump(train_pred_z, f)
+
+            with open(
+                args["output_dir"] + "test_pred_z{}.csv".format(epoch), mode="wb"
+            ) as f:
+                pickle.dump(test_pred_z, f)
+
         np.save(args["output_dir"] + "/loss_list.npy", np.array(loss_list))
         np.save(args["output_dir"] + "/test_loss_list.npy", np.array(test_loss_list))
 
