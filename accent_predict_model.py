@@ -108,8 +108,8 @@ def train_accent_rnn(args, trial=None, test_ratio=1):
         z_train = []
         z_test = []
         with torch.no_grad():
-            tmp = []
             for idx, data in enumerate(tqdm(train_loader[:0])):
+                tmp = []
                 for j in range(2):
                     tmp.append(torch.from_numpy(data[j]).float().to(device))
                 isnan = True
@@ -127,6 +127,7 @@ def train_accent_rnn(args, trial=None, test_ratio=1):
                 z_train.append(z.cpu().numpy().reshape(-1))
 
             for data in tqdm(test_loader):
+                tmp = []
                 for j in range(2):
                     tmp.append(torch.from_numpy(data[j]).float().to(device))
                 isnan = True
