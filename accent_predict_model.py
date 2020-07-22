@@ -58,6 +58,7 @@ def test(epoch, model, test_loader, z_test):
                 z_pred.view(-1), torch.from_numpy(z_test[batch_idx]).to(device)
             )
             test_loss += loss.item()
+            print(test_loss)
             del tmp
 
     print(
