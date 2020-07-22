@@ -123,6 +123,7 @@ def train_accent_rnn(args, trial=None, test_ratio=1):
                     isnan = np.isnan(z.detach().cpu().numpy()).any()
                     if isnan:
                         print(idx)
+                        print(z)
 
                 z_train.append(z.cpu().numpy().reshape(-1))
 
