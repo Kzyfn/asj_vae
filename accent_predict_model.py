@@ -111,12 +111,14 @@ def train_accent_rnn(args, trial=None, test_ratio=1):
             tmp = []
             for data in tqdm(train_loader):
                 for j in range(2):
-                    tmp.append(torch.from_numpy(data[j]).float().to(device)
+                    tmp.append(torch.from_numpy(data[j]).float().to(device))
                 z = torch.tensor([np.nan]).to(device).to(torch.float)
 
                 while torch.isnan(z):
-                    recon_batch, z, z_unquantized = vqvae_model(tmp[0], tmp[1], data[2], 0)
-                
+                    recon_batch, z, z_unquantized = vqvae_model(
+                        tmp[0], tmp[1], data[2], 0
+                    )
+
                 z_train.append(z.cpu().numpy().reshape(-1))
 
             for data in tqdm(test_loader):
@@ -125,7 +127,9 @@ def train_accent_rnn(args, trial=None, test_ratio=1):
                 z = torch.tensor([np.nan]).to(device).to(torch.float)
 
                 while torch.isnan(z):
-                    recon_batch, z, z_unquantized = vqvae_model(tmp[0], tmp[1], data[2], 0)
+                    recon_batch, z, z_unquantized = vqvae_model(
+                        tmp[0], tmp[1], data[2], 0
+                    )
                 z_test.append(z.cpu().numpy().reshape(-1))
 
         with open("z_train.csv", mode="wb") as f:
