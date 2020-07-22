@@ -108,7 +108,7 @@ def train_accent_rnn(args, trial=None, test_ratio=1):
         z_train = []
         z_test = []
         with torch.no_grad():
-            for idx, data in enumerate(tqdm(train_loader[:0])):
+            for idx, data in enumerate(tqdm(train_loader)):
                 tmp = []
                 for j in range(2):
                     tmp.append(torch.from_numpy(data[j]).float().to(device))
