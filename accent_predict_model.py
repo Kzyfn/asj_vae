@@ -24,12 +24,13 @@ def train(epoch, model, train_loader, z_train, optimizer):
     for batch_idx, data in enumerate(train_loader):
         tmp = []
         for j in range(1):
-            tmp.append(torch.from_numpy(data[j]).float().to(device))
+            tmp.append(torch.from_numpy(data[j]).float().to(device).to(torch.float))
 
         optimizer.zero_grad()
         z_pred = model(tmp[0], data[2])
         loss = F.mse_loss(
-            z_pred.view(-1), torch.from_numpy(z_train[batch_idx]).to(device) / 17
+            z_pred.view(-1),
+            torch.from_numpy(z_train[batch_idx]).to(device).to(torch.float),
         )
 
         loss.backward()
@@ -55,11 +56,12 @@ def test(epoch, model, test_loader, z_test):
         for batch_idx, data in enumerate(test_loader):
             tmp = []
             for j in range(1):
-                tmp.append(torch.from_numpy(data[j]).float().to(device) / 17)
+                tmp.append(torch.from_numpy(data[j]).float().to(device).to(torch.float))
 
             z_pred = model(tmp[0], data[2])
             loss = F.mse_loss(
-                z_pred.view(-1), torch.from_numpy(z_test[batch_idx]).to(device)
+                z_pred.view(-1),
+                torch.from_numpy(z_test[batch_idx]).to(device).to(torch.float),
             )
             test_loss += loss.item()
             del tmp
