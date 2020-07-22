@@ -25,23 +25,24 @@ def train(epoch, model, train_loader, z_train, optimizer):
         tmp = []
         for j in range(1):
             tmp.append(torch.from_numpy(data[j]).float().to(device).to(torch.float))
+        with torch.autograd.detect_anomaly():
+            optimizer.zero_grad()
+            z_pred = model(tmp[0], data[2])
+            loss = F.mse_loss(
+                z_pred.view(-1),
+                torch.from_numpy(z_train[batch_idx]).to(device).to(torch.float),
+            )
 
-        optimizer.zero_grad()
-        z_pred = model(tmp[0], data[2])
-        loss = F.mse_loss(
-            z_pred.view(-1),
-            torch.from_numpy(z_train[batch_idx]).to(device).to(torch.float),
-        )
+            loss.backward()
+            train_loss += loss.item()
+            print(loss.item())
+            if torch.isnan(loss):
+                print(z_pred)
+                print(z_pred.size())
+                print(z_train[batch_idx])
+                print(z_train[batch_idx].shape)
+            optimizer.step()
 
-        loss.backward()
-        train_loss += loss.item()
-        print(loss.item())
-        if torch.isnan(loss):
-            print(z_pred)
-            print(z_pred.size())
-            print(z_train[batch_idx])
-            print(z_train[batch_idx].shape)
-        optimizer.step()
         del tmp
         train_pred_z.append(z_pred.detach().cpu().numpy().reshape(-1))
 
@@ -109,7 +110,7 @@ def train_accent_rnn(args, trial=None, test_ratio=1):
         z_test = []
         with torch.no_grad():
             tmp = []
-            for data in tqdm(train_loader):
+            for idx, data in enumerate(tqdm(train_loader)):
                 for j in range(2):
                     tmp.append(torch.from_numpy(data[j]).float().to(device))
                 isnan = True
@@ -120,6 +121,8 @@ def train_accent_rnn(args, trial=None, test_ratio=1):
                     )
 
                     isnan = np.isnan(z.detach().cpu().numpy()).any()
+                    if isnan:
+                        print(idx)
 
                 z_train.append(z.cpu().numpy().reshape(-1))
 
