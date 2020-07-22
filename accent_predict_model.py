@@ -35,7 +35,6 @@ def train(epoch, model, train_loader, z_train, optimizer):
 
             loss.backward()
             train_loss += loss.item()
-            print(loss.item())
             if torch.isnan(loss):
                 print(z_pred)
                 print(z_pred.size())
