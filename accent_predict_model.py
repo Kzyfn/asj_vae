@@ -112,7 +112,7 @@ def train_accent_rnn(args, trial=None, test_ratio=1):
             for data in tqdm(train_loader):
                 for j in range(2):
                     tmp.append(torch.from_numpy(data[j]).float().to(device))
-                z = torch.tensor([np.nan]).to(device).to(torch.float)
+                z = torch.tensor(np.nan).to(device).to(torch.float)
 
                 while torch.isnan(z):
                     recon_batch, z, z_unquantized = vqvae_model(
@@ -124,7 +124,7 @@ def train_accent_rnn(args, trial=None, test_ratio=1):
             for data in tqdm(test_loader):
                 for j in range(2):
                     tmp.append(torch.from_numpy(data[j]).float().to(device))
-                z = torch.tensor([np.nan]).to(device).to(torch.float)
+                z = torch.tensor(np.nan).to(device).to(torch.float)
 
                 while torch.isnan(z):
                     recon_batch, z, z_unquantized = vqvae_model(
