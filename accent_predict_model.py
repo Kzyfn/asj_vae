@@ -38,7 +38,9 @@ def train(epoch, model, train_loader, z_train, optimizer):
         print(loss.item())
         if torch.isnan(loss):
             print(z_pred)
+            print(z_pred.size())
             print(z_train[batch_idx])
+            print(z_train[batch_idx].shape)
         optimizer.step()
         del tmp
         train_pred_z.append(z_pred.detach().cpu().numpy().reshape(-1))
