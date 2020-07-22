@@ -37,7 +37,7 @@ def train(epoch, model, train_loader, z_train, optimizer):
         train_loss += loss.item()
         optimizer.step()
         del tmp
-        train_pred_z.append(z_pred.cpu().numpy().reshape(-1))
+        train_pred_z.append(z_pred.detach().cpu().numpy().reshape(-1))
 
     print(
         "====> Epoch: {} Average loss: {:.4f}".format(
@@ -66,7 +66,7 @@ def test(epoch, model, test_loader, z_test):
             test_loss += loss.item()
             del tmp
 
-            test_pred_z.append(z_pred.cpu().numpy().reshape(-1))
+            test_pred_z.append(z_pred.detach().cpu().numpy().reshape(-1))
 
     print(
         "====> Epoch: {} Average loss: {:.4f}".format(
